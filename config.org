@@ -1,0 +1,1228 @@
+#+TITLE:     My Emacs config
+#+AUTHOR:    Marcus Nitzschke
+#+OPTIONS:   H:3 num:t toc:2 \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:t ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+HTML_HEAD_EXTRA:    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js"></script>
+#+HTML_HEAD_EXTRA:    <script type="text/javascript" src="fancybox/jquery.fancybox-1.3.4.pack.js"></script>
+#+HTML_HEAD_EXTRA:    <link rel="stylesheet" href="fancybox/jquery.fancybox-1.3.4.css" type="text/css" media="screen" />
+#+HTML_HEAD_EXTRA:    <link rel="stylesheet" type="text/css" href="worg.css" />
+#+HTML_HEAD_EXTRA:    <link rel="stylesheet" type="text/css" href="style.css" />
+* Introduction
+Current version of Emacs is:
+#+BEGIN_SRC emacs-lisp :results value :exports results
+(emacs-version)
+#+END_SRC
+
+
+#+RESULTS:
+: GNU Emacs 24.2.1 (x86_64-unknown-linux-gnu, GTK+ Version 3.6.2)
+:  of 2012-11-18 on eric
+
+** About this config
+This documentation is build by Emacs' [[http://orgmode.org/][orgmode]]. The =init.el= looks like this:
+#+BEGIN_SRC emacs-lisp :results value :exports results
+ (with-temp-buffer    (insert-file-contents "~/.emacs.d/init.el")    (buffer-string))
+#+END_SRC
+
+That's all. The rest is done in the =config.org= and that's this document.
+** Installation
+   TODO
+** Other configs
+Other intresting configurations build with Orgmode:
+  - [[http://dl.dropbox.com/u/3968124/sacha-emacs.html][Sacha Chua]]
+  - [[http://eschulte.me/emacs24-starter-kit/][Emacs Starter Kit]]
+
+** Key frequencies						   :noexport:
+   TODO
+#+BEGIN_SRC python :exports results :results output
+  from pandas.io.parsers import read_csv
+  from pylab import *
+  
+  # number of commands that should be analyzed
+  num = 40
+  
+  # define some equivalent commands which do quite the same as
+  # their 'parent' commands
+  equivalents = {
+      "self-insert-command":
+          ["org-self-insert-command", "isearch-printing-char"],
+      "next-line":
+          ["dired-next-line", "org-agenda-next-line"],
+      "previous-line":
+          ["dired-previous-line", "org-agenda-previous-line"],
+      "delete-backward-char":
+          ["org-delete-backward-char"]
+      }
+  
+  ignored = [
+      "mwheel-scroll",
+      "mouse-drag-region",
+      "twittering-click",
+      "mouse-set-point"
+      ]
+  
+  # load keyfreq data
+  data = read_csv("~/.emacs.d/doc/keyfreq.csv", header=None, index_col=0,
+                  encoding='utf-8')
+  
+  # add the values of the equivalent commands to their parent commands
+  for key in equivalents:
+      sum = 0
+      for equi in equivalents[key]:
+          sum += data.xs(equi)[1]
+  
+          data = data.drop(equi)
+  
+      data.ix[key] = data.ix[key] + sum
+  
+  # delete the ignored commands
+  for command in ignored:
+      data = data.drop(command)
+  
+  # resort the dataframe
+  data = data.sort([1], ascending=False)
+  data = data[num::-1]
+  
+  data.plot(kind='barh', legend=False, color="#268bd2")
+  
+  # add text objects to each bar that shows the frequency count
+  for i in range(0, num+1):
+      text(data.ix[i][1], i+0.4, " " + str(data.ix[i][1]))
+  
+  figure = gcf() # get current figure
+  figure.set_size_inches(19, 11)
+  savefig('doc/keyfreq.png')
+  
+#+END_SRC
+
+#+RESULTS:
+
+The following plot shows the most frequent used functions of me. This
+helps me to analyse which functions should have the best keybindings.
+And in general its fun to see how I'm using Emacs :)
+
+#+BEGIN_HTML
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $(".fancybox").fancybox({
+        hideOnContentClick:true
+      });
+    });
+  </script>
+  <div class="figure">
+    <a class="fancybox" href="keyfreq.png">
+      <img src="keyfreq.png" width="100%" alt="key frenquencies" />
+    </a>
+  </div>
+#+END_HTML
+* General
+  This section contains the configuration for some general parts of Emacs that are not mode-specific.
+** general variables
+#+BEGIN_SRC emacs-lisp
+  (setq
+   ;; store autosaved files in system's tmp dir
+   auto-save-list-file-prefix "/tmp/emacs/auto-save-list/.saves-"
+   
+   ;; default browser
+   browse-url-browser-function 'browse-url-generic
+   browse-url-generic-program (substring
+                               (shell-command-to-string "xdg-settings get default-web-browser")
+                               0 -9)
+  
+   ;; show column in toolbar
+   column-number-mode  t
+  
+   custom-file "~/.emacs.d/custom.el"
+   
+   ;; fortune file
+   fortune-file "~/.emacs.d/fortunes/emacs"   
+   ;; frame title
+   frame-title-format "%b - Emacs"
+  
+   ;; refresh files automatically on disk change
+   global-auto-revert-mode t
+  
+   ;; start with a new buffer instead of start screen
+   inhibit-startup-screen t
+
+   initial-major-mode 'org-mode
+
+   initial-scratch-message nil
+
+   make-backup-files nil
+    
+   ;; sentences end with one space instead of two
+   sentence-end-double-space nil
+   
+   ;; no gtk file dialogs
+   use-file-dialog nil
+   )
+#+END_SRC
+
+#+RESULTS:
+
+The following variables provide some general editing setting.
+#+BEGIN_SRC emacs-lisp
+(setq
+ c-basic-offset 4
+ coffee-tab-width 4
+ tab-width 4
+ kill-whole-line t
+ fill-column 80
+ indent-tabs-mode nil
+)
+#+END_SRC
+   Shorten the question of "yes or no" to simply "y" or "n"
+#+BEGIN_SRC emacs-lisp
+  (fset 'yes-or-no-p 'y-or-n-p)
+#+END_SRC
+** GUI
+Disable the toolbar and the scrollbars:
+#+BEGIN_SRC emacs-lisp
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+#+END_SRC
+And highlight the current line for a better cognition:
+#+BEGIN_SRC emacs-lisp
+  (global-hl-line-mode 1)
+#+END_SRC
+The default font is the mono variation of the [[http://font.ubuntu.com/][Ubuntu font family]].
+#+BEGIN_SRC emacs-lisp  
+  (set-frame-font "Ubuntu Mono" nil t)
+#+END_SRC
+*** Faces
+#+BEGIN_SRC emacs-lisp  
+  (set-face-attribute 'font-lock-warning-face nil :foreground "#C15757" :underline nil :weight 'bold)
+  
+  (eval-after-load "flyspell"
+    '(progn
+       (set-face-attribute 'flyspell-incorrect nil :foreground "red" :underline t :weight 'normal :slant 'italic)
+       )
+    )
+  
+  (eval-after-load "whitespace"
+    '(progn
+       (set-face-attribute 'whitespace-line nil :foreground "red1" :slant 'italic)
+       )
+    )
+#+END_SRC
+** Hooks
+#+BEGIN_SRC emacs-lisp
+   (add-hook 'emacs-startup-hook
+             (lambda ()
+               (load custom-file)
+  
+               ;; Orgmode "startpage"
+               (org-agenda nil "y")
+               (org-agenda-clockreport-mode)
+               (delete-other-windows)
+               
+               (split-window-horizontally)
+               ;(fortune)
+               
+               ;; load theme
+               (load-theme 'solarized-light)
+   
+               ;; show startup time
+               (message (format "startup time: %s" (emacs-init-time)))
+
+               (local-startup-hook)
+               ) t
+             )
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'kill-emacs-hook
+            (lambda ()
+              ;(publish-emacs-config)
+              ) t
+            )
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode-hook
+            (lambda ()
+              (company-mode 1)
+              (aggressive-indent-mode 1)
+              (linum-mode 1)
+              (rainbow-delimiters-mode 1)
+              )
+            )
+#+END_SRC
+* Global keybindings
+I was very confused that the global-map of Emacs isn't that global as one could think.
+That means major modes are able to override such "global" keybindings. So to get really global
+keybindings I use a minor mode that sets the appropriate bindings in all major modes.
+
+First we define a custom keymap:
+#+BEGIN_SRC emacs-lisp
+  (defvar global-minor-mode-map (make-keymap) "global-minor-mode keymap.")
+#+END_SRC
+And now we add arbitrary key bindings to this map.
+#+BEGIN_SRC emacs-lisp
+  (define-key global-minor-mode-map (kbd "<f9>") (lambda () (interactive) (find-file "~/.emacs.d/bookmarks.org")))
+  (define-key global-minor-mode-map (kbd "<f10>") (lambda () (interactive) (org-capture nil "t")))
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (define-key global-minor-mode-map (kbd "C-x C-b") 'ibuffer)
+  (define-key global-minor-mode-map (kbd "C-c a")   'org-agenda)
+  (define-key global-minor-mode-map (kbd "C-x e")   'eshell)
+  (define-key global-minor-mode-map (kbd "C-x m")   'magit-status)
+  (define-key global-minor-mode-map (kbd "M-x")   'helm-M-x)
+  (define-key global-minor-mode-map (kbd "M-y")   'helm-show-kill-ring)
+  (define-key global-minor-mode-map (kbd "C-x b")   'helm-mini)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (define-key global-minor-mode-map (kbd "C-s")   'save-buffer)
+  (define-key global-minor-mode-map (kbd "C-f")   'isearch-forward)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (define-key global-minor-mode-map (kbd "M-<down>") 'move-line-down)
+  (define-key global-minor-mode-map (kbd "M-<up>")   'move-line-up)
+#+END_SRC
+  The following bindings allow me to navigate windows in Emacs by
+  using directional keys. This is more effective than native =C-x o=
+  in my opinion.
+#+BEGIN_SRC emacs-lisp
+  (define-key global-minor-mode-map (kbd "M-H") 'windmove-left)
+  (define-key global-minor-mode-map (kbd "M-J") 'windmove-down)
+  (define-key global-minor-mode-map (kbd "M-K") 'windmove-up)
+  (define-key global-minor-mode-map (kbd "M-L") 'windmove-right)  
+#+END_SRC
+  And yeah, if you are an Emacs hardliner, feel free to skip ne next block. Otherwise
+  I declare that for me the hjkl movement is much more effective, ergonomic etc. than the
+  native movement keybindings.
+#+BEGIN_SRC emacs-lisp
+  (define-key global-minor-mode-map (kbd "M-h") 'backward-char)
+  (define-key global-minor-mode-map (kbd "M-j") 'next-line)
+  (define-key global-minor-mode-map (kbd "M-k") 'previous-line)
+  (define-key global-minor-mode-map (kbd "M-l") 'forward-char)
+#+END_SRC
+  The following keybindings provide a common way to increase/decrease the
+  font-size of the current buffer.
+#+BEGIN_SRC emacs-lisp
+  (define-key global-minor-mode-map (kbd "C-+") 'text-scale-increase)
+  (define-key global-minor-mode-map (kbd "<C-mouse-4>") 'text-scale-increase)
+  
+  (define-key global-minor-mode-map (kbd "C--") 'text-scale-decrease)
+  (define-key global-minor-mode-map (kbd "<C-mouse-5>") 'text-scale-decrease)
+#+END_SRC
+And finally the minor mode is build and loaded:
+#+BEGIN_SRC emacs-lisp
+  (define-minor-mode global-minor-mode
+    "A minor mode so that my key settings aren't shadowed by other major/minor modes"
+    t "" 'global-minor-mode-map)
+  (global-minor-mode 1)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (define-key global-map (kbd "RET") 'newline-and-indent)
+#+END_SRC
+* Global functions  
+This function sets the window manager urgency hint. What this causes
+is up to your window manager.
+#+BEGIN_SRC emacs-lisp
+  (defun x-urgency-hint (frame arg &optional source)
+    (let* ((wm-hints (append (x-window-property 
+                           "WM_HINTS" frame "WM_HINTS" source nil t) nil))
+        (flags (car wm-hints)))
+      (setcar wm-hints
+           (if arg
+               (logior flags #x00000100)
+             (logand flags #x1ffffeff)))
+      (x-change-window-property "WM_HINTS" wm-hints frame "WM_HINTS" 32 t)))
+#+END_SRC
+This function looks for typical keywords like TODO or FIXME in the current buffer and shows them in an occur buffer.
+#+BEGIN_SRC emacs-lisp
+  (defun show-todos ()
+    (interactive)
+    (occur "TODO\\|FIXME\\|HACK")
+    ;; (if (not (eq (get-buffer "*Occur*") nil))
+    ;;     (switch-to-buffer "*Occur*")
+    ;;   )
+    )
+#+END_SRC
+The following functions define simple commands for moving a line up or down.
+#+BEGIN_SRC emacs-lisp
+  (defun move-line-down ()
+    (interactive)
+    (let ((col (current-column)))
+      (save-excursion
+        (next-line)
+        (transpose-lines 1))
+      (next-line)
+      (move-to-column col)))
+  
+  (defun move-line-up ()
+    (interactive)
+    (let ((col (current-column)))
+      (save-excursion
+        (next-line)
+        (transpose-lines -1))
+      (move-to-column col)))
+#+END_SRC
+This function generates the keyfrequencies and exports/publishes my Emacs config.
+#+BEGIN_SRC emacs-lisp
+  (defun publish-emacs-config ()
+    (interactive)
+    (keyfreq-csv "~/.emacs.d/doc/keyfreq.csv")
+    (org-publish-project "emacs-config")
+    )
+#+END_SRC
+* Major Modes
+** calendar
+#+BEGIN_SRC emacs-lisp
+  ;; weeks start with monday
+  (setq calendar-week-start-day 1
+        calendar-date-style 'european)
+#+END_SRC
+** dired
+#+BEGIN_SRC emacs-lisp
+  ;(require 'ls-lisp)
+
+  (setq
+   ;; default output of dired listing
+   dired-listing-switches "-lhv"
+
+   ;; copy files to open panes
+   dired-dwim-target t
+
+   delete-by-moving-to-trash t
+
+   dired-recursive-deletes 'always
+
+   ;; use lisp implementation of ls
+   ls-lisp-use-insert-directory-program nil
+   ;ls-lisp-emulation nil
+   ;ls-lisp-format-time-list (quote ("%d.%m.%Y %H:%M" "%d.%m.%Y %H:%M"))
+   ls-lisp-use-localized-time-format t
+   ;ls-lisp-ignore-case t
+   ;ls-lisp-verbosity nil
+   )
+#+END_SRC
+Define some compress commands for common archive types that are not
+handled by dired by default.
+#+BEGIN_SRC emacs-lisp
+  (eval-after-load "dired-aux"
+    '(add-to-list 'dired-compress-file-suffixes 
+                  '("\\.zip\\'" ".zip" "unzip")
+                  '("\\.rar\\'" ".rar" "unrar x")
+                  ))
+  
+#+END_SRC
+*** functions
+This function runs an ediff session on the marked files in dired.
+#+BEGIN_SRC emacs-lisp
+  (defun dired-ediff-marked-files ()
+    (interactive)
+    (set 'marked-files (dired-get-marked-files))
+    (when (= (safe-length marked-files) 2)
+      (ediff-files (nth 0 marked-files) (nth 1 marked-files)))
+    
+    (when (= (safe-length marked-files) 3)
+      (ediff3 (buffer-file-name (nth 0 marked-files))
+              (buffer-file-name (nth 1 marked-files)) 
+              (buffer-file-name (nth 2 marked-files)))))
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+(defun dired-xdg-open (&optional file-list)
+  "Opens the markes files by xdg-open."
+  (interactive
+   (list (dired-get-marked-files t current-prefix-arg)))
+  (apply 'call-process "xdg-open" nil 0 nil file-list))
+;(define-key dired-mode-map (kbd "o") 'dired-xdg-open)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+(defun dired-mouse-find-file (event)
+  "In Dired, visit the file or directory name you click on."
+  (interactive "e")
+  (let (window pos file)
+    (save-excursion
+      (setq window (posn-window (event-end event))
+            pos (posn-point (event-end event)))
+      (if (not (windowp window))
+          (error "No file chosen"))
+      (set-buffer (window-buffer window))
+      (goto-char pos)
+      (setq file (dired-get-file-for-visit)))
+    (if (file-directory-p file)
+        (or (and (cdr dired-subdir-alist)
+                 (dired-goto-subdir file))
+            (progn
+              (select-window window)
+              (dired file)))
+      (select-window window)
+      (find-file (file-name-sans-versions file t)))))
+
+(add-hook 'dired-mode-hook (lambda ()
+			     (local-set-key [mouse-1] 'dired-mouse-find-file)
+			     )
+	  )
+#+END_SRC
+** ibuffer
+#+BEGIN_SRC emacs-lisp
+(setq
+ ;; group the buffers
+ ibuffer-saved-filter-groups
+ (quote (("default"
+          ("Dired" (mode . dired-mode))
+          ("Org"
+           (or
+            (mode . org-mode)
+            (name . "^\\*Org Agenda\\*$")
+            ))
+          ("Mail"
+           (or
+            (mode . message-mode)
+            (mode . mail-mode)
+            (name . "^\\*Group\\*$")
+            (name . "^\\*Article\\*$")
+            (name . "^\\*Summary\\*$")
+            ))
+          ("Messaging"
+           (or
+            (mode . erc-mode)
+            (mode . twittering-mode)
+            ))
+          ("Terminals"
+           (or
+            (mode . term-mode)
+            ))
+          ("Programming"
+           (or
+            (mode . js2-mode)
+            (mode . python-mode)
+            (mode . emacs-lisp-mode)
+            ))
+          ("Writing"
+           (or
+            (mode . latex-mode)
+            (name . "*.Rnw$")
+            )))))
+
+ ;; format the buffer display
+ ibuffer-formats
+ '((mark modified read-only " "
+         (name 28 28 :left :elide)
+         " "
+         (mode 20 20 :left :elide)
+         " "
+         filename-and-process))
+
+ ;; + for modiefied buffers
+ ibuffer-modified-char 43
+
+ ;; ! for read-only buffers
+ ibuffer-read-only-char 33
+ )
+
+(add-hook 'ibuffer-mode-hook
+  (lambda ()
+    (ibuffer-switch-to-saved-filter-groups "default")))
+#+END_SRC
+** js2-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package js2-mode
+               :mode ("\\.js$" . js2-mode)
+               :config
+               (progn
+                 (setq js2-auto-indent-p t
+                       js2-basic-offset 2
+                       js2-enter-indents-newline t
+                       js2-indent-on-enter-key t))
+               )
+  
+#+END_SRC
+** LaTeX
+#+BEGIN_SRC emacs-lisp
+  (setq TeX-PDF-mode t
+        TeX-debug-bad-boxes t
+        reftex-plug-into-AUCTeX t)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp  
+  ;; format paragraphs as one sentence per line
+  (defadvice LaTeX-fill-region-as-paragraph (around LaTeX-sentence-filling)
+    "Start each sentence on a new line."
+    (let ((from (ad-get-arg 0))
+          (to-marker (set-marker (make-marker) (ad-get-arg 1)))
+          tmp-end)
+      (while (< from (marker-position to-marker))
+        (forward-sentence)
+        ;; might have gone beyond to-marker --- use whichever is smaller:
+        (ad-set-arg 1 (setq tmp-end (min (point) (marker-position to-marker))))
+        ad-do-it
+        (ad-set-arg 0 (setq from (point)))
+        (unless (or
+                 (bolp)
+                 (looking-at "\\s *$"))
+          (LaTeX-newline)))
+      (set-marker to-marker nil)))
+  (ad-activate 'LaTeX-fill-region-as-paragraph)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp  
+  (add-hook 'LaTeX-mode-hook
+            (lambda ()
+              (reftex-mode 1)
+              (outline-minor-mode 1)
+              (define-key LaTeX-mode-map (kbd "M-z") 'outline-toggle-children)
+              )
+            )
+#+END_SRC
+** orgmode
+#+BEGIN_SRC emacs-lisp
+  (setq 
+   org-lowest-priority ?D
+   org-highest-priority ?A
+  
+   org-hide-block-startup t
+  )
+  (org-add-link-type "thunderlink" 'org-thunderlink-open)
+  
+  (defun org-thunderlink-open (path)
+    "Opens an email in Thunderbird with ThunderLink."
+    (start-process "myname" nil "thunderbird" "-thunderlink" (concat "thunderlink:" path)))
+  
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (setq
+   org-toodledo-folder-support-mode 'heading
+   org-toodledo-sync-on-save "yes")
+#+END_SRC
+*** Agenda
+#+BEGIN_SRC emacs-lisp
+  (setq org-agenda-cmp-user-defined 'org-compare-todo-state)
+  
+  (defun org-compare-todo-state (a b)
+    (let* ((ma (org-entry-get (get-text-property 1 'org-marker a) "TODO"))
+           (mb (org-entry-get (get-text-property 1 'org-marker b) "TODO")))
+    
+      (cond
+       ((and
+         (member ma '("TODO" "INWORK"))
+         (member mb '("DONE" "FDBCK" "DLGTD" "CANC")))
+        1)
+       ((and
+         (member mb '("TODO" "INWORK"))
+         (member ma '("DONE" "FDBCK" "DLGTD" "CANC")))
+        -1)
+       (t nil))
+      )
+    )
+  
+  (setq org-agenda-todo-ignore-scheduled 'all
+        org-deadline-warning-days 5
+  
+        org-agenda-todo-keyword-format "%-6s"
+  
+        org-agenda-custom-commands
+        '(("y"
+           ((agenda "Overview")
+            (alltodo ""  ((org-agenda-files (remove "~/Dropbox/todo.work.org" org-agenda-files))
+                          (org-agenda-overriding-header "TODO list private:          ")))
+            (alltodo "" ((org-agenda-files '("~/Dropbox/todo.work.org"))
+                         (org-agenda-overriding-header "TODO list work:             ")))
+            (todo "FDBCK" ((org-agenda-overriding-header "Tasks waiting for feedback: "))))
+            ((org-agenda-remove-tags t)
+             (org-agenda-sorting-strategy '(
+                                            ;(agenda user-defined-down timestamp-up)
+                                            (todo priority-down)
+                                            ));todo-state-down priority-down)))
+             ;;  priority-down 
+             (org-agenda-prefix-format '(
+                                         (agenda . " %i %?-12t% s")
+                                         (timeline . "  % s")
+                                         (todo . " %i ")
+                                         ;;(todo . " %i %?-5(concat \"\"(org-format-outline-path (org-get-outline-path))\"\")")
+                                         (tags . " %i %-12:c")
+                                         (search . " %i %-12:c")
+                                         ))
+             )
+            )
+          )
+        )
+#+END_SRC
+*** Babel
+#+BEGIN_SRC emacs-lisp
+  (require 'ob-python)
+  (setq
+   org-babel-load-languages (quote ((R . t) (emacs-lisp . t) (python . t) (sparql . t)))
+   org-confirm-babel-evaluate nil
+   )
+#+END_SRC
+*** Capture
+#+BEGIN_SRC emacs-lisp
+  (setq org-capture-templates
+        '((
+           "t"
+           "Create new TODO in Inbox"
+           entry
+           (file+headline "~/Dokumente/todo.inbox.org" "Inbox")
+           "** TODO [#%^{PRIO}] %^{TITLE}
+    %^{DESC}"
+           :immediate-finish t
+           )))
+#+END_SRC
+*** Clocking
+#+BEGIN_SRC emacs-lisp
+  (setq
+   org-clock-modeline-total 'current
+   org-log-into-drawer t
+  )
+#+END_SRC
+*** Exporting
+#+BEGIN_SRC emacs-lisp
+  ;(require 'ox-md)
+  ;(require 'ox-beamer)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (setq
+   org-src-fontify-natively t
+  
+   org-export-creator-info nil
+   org-export-time-stamp-file nil
+   org-export-with-section-numbers nil
+   org-export-with-toc nil
+   org-html-postamble nil
+   org-export-latex-classes
+   (quote
+    (("article" "\\documentclass[11pt]{scrartcl}
+  \\usepackage[utf8]{inputenc}
+  \\usepackage[T1]{fontenc}
+  \\usepackage{graphicx}
+  \\usepackage{longtable}
+  \\usepackage{listings}
+  \\usepackage[ngerman]{babel}
+  \\usepackage{float}
+  %\\usepackage{wrapfig}
+  \\usepackage{soul}
+  \\usepackage{amssymb}
+  \\usepackage{hyperref}"
+      ("\\section{%s}" . "\\section{%s}")
+      ("\\subsection{%s}" . "\\subsection{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection{%s}")
+      ("\\paragraph{%s}" . "\\paragraph{%s}")
+      ("\\subparagraph{%s}" . "\\subparagraph{%s}"))
+     ("lni" "\\documentclass[english]{lni}
+  IfFileExists{latin1.sty}{\\usepackage{latin1}}{\\usepackage{isolatin1}}
+  \\usepackage[utf8]{inputenc}
+  \\usepackage[T1]{fontenc}
+  \\usepackage{graphicx}
+  \\usepackage{caption}
+  \\usepackage{url}
+  \\usepackage{longtable}
+  \\usepackage{listings}
+  %\\usepackage[ngerman]{babel}
+  \\usepackage{float}
+  %\\usepackage{wrapfig}
+  \\usepackage{soul}
+  \\usepackage{amssymb}
+  \\usepackage{hyperref}"
+      ("\\section{%s}" . "\\section{%s}")
+      ("\\subsection{%s}" . "\\subsection{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection{%s}")
+      ("\\paragraph{%s}" . "\\paragraph{%s}")
+      ("\\subparagraph{%s}" . "\\subparagraph{%s}"))
+     ("report" "\\documentclass[11pt]{report}
+  \\usepackage[utf8]{inputenc}
+  \\usepackage[T1]{fontenc}
+  \\usepackage{graphicx}
+  \\usepackage{longtable}
+  \\usepackage{float}
+  \\usepackage{wrapfig}
+  \\usepackage{soul}
+  \\usepackage{amssymb}
+  \\usepackage{hyperref}"
+      ("\\part{%s}" . "\\part*{%s}")
+      ("\\chapter{%s}" . "\\chapter*{%s}")
+      ("\\section{%s}" . "\\section*{%s}")
+      ("\\subsection{%s}" . "\\subsection*{%s}")
+      ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+     ("beamer" "\\documentclass[xcolor=dvipsnames]{beamer}
+  \\usepackage[utf8]{inputenc}
+  \\usepackage{graphicx}
+  \\usepackage{color}
+  \\setbeamertemplate{navigation symbols}{}
+  \\usetheme{Ilmenau}
+  \\usecolortheme[named\=MidnightBlue]{structure}
+  \\beamersetuncovermixins{\\opaqueness<1>{25}}{\\opaqueness<2->{15}}
+  \\setbeamertemplate{footline}[frame number]"
+      ("\\section{%s}" . "\\section{%s}")
+      ("\\begin{frame}\\frametitle{%s}"
+       "\\end{frame}"
+       "\\begin{frame}\\frametitle{%s}"
+       "\\end{frame}")
+      ("\\subsection{%s}" . "\\subsection*{%s}"))
+     ;; ("\\subsubsection{%s}" . "\\subsubsection*{%s}"))
+     ))
+  
+   org-export-latex-date-format "%d. %B %Y"
+   org-beamer-frame-level 2
+  
+   ;;  org-export-html-style "
+   ;; <script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js\"></script>
+   ;; <script type=\"text/javascript\">
+   ;; $().ready(function(){
+   ;;   if ( $(\"#table-of-contents\").length !== 0 ){
+   ;;     $(\"#content\").before(\"<div id='table-of-content'>\" + $(\"#table-of-contents\").html() + \"</div>\");
+   ;;     $(\"#table-of-contents\").hide();
+   ;;     $(\"#content\").css(\"float\", \"right\");
+   ;;   }
+   ;; });
+   ;; </script>
+   ;; <link href='http://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+   ;; <link href='http://fonts.googleapis.com/css?family=Salsa' rel='stylesheet' type='text/css'>
+   ;; <style type=\"text/css\">
+   ;;   body{
+   ;;     background-color:#EBE99D;
+   ;;     margin: 0px;
+   ;;     padding: 0px;
+   ;;     font-family: 'Salsa';
+   ;;   }
+   ;;   h2{
+   ;;     font-family: 'Pacifico';
+   ;;     font-size: 2em;
+   ;;     margin: 0px auto 0px auto;
+   ;;   }
+   ;;   h3{
+   ;;     font-family: 'Pacifico';
+   ;;     font-size: 1.4em;
+   ;;     margin: 0px auto 0px auto;
+   ;;   }
+   ;;   ul{
+   ;;     list-style-type: none;
+   ;;   }
+   ;;   ul > li:before{
+   ;;     content: \"\\2013\\A0\";
+   ;;   }
+   ;;   p{
+   ;;     margin: 0px auto 0px auto;
+   ;;   }
+   ;;   .title{
+   ;;     color:#eee;
+   ;;     background-color:#451F08;
+   ;;     text-align:center;
+   ;;     height: 50px;
+   ;;     margin: 0px;
+   ;;     padding: 5px 5px 0 0;
+   ;;     -webkit-box-shadow:0px 2px 5px gray;
+   ;;     -moz-box-shadow:0px 2px 5px gray;
+   ;;     box-shadow:0px 2px 5px gray;
+   ;;   }
+   ;;   #content > div, #content > p{
+   ;;     margin-left: 75px;
+   ;;     border-left: 3px double brown;
+   ;;     padding: 10px;
+   ;;   }
+   ;;   #table-of-content{
+   ;;     float: left;
+   ;;   }
+   ;; </style>"
+   org-export-html-title-format "<h1 class=\"title\">%s</h1>"
+   org-export-html-table-tag "<table class=\"table table-condensed table-striped table-bordered\" border=\"2\" cellspacing=\"0\" cellpadding=\"6\" rules=\"groups\" frame=\"hsides\">"
+   org-export-html-use-infojs (quote when-configured)
+   )
+#+END_SRC
+*** Publishing
+#+BEGIN_SRC emacs-lisp
+  ;(require 'org-publish)
+  ;(require 'ox-html)
+
+  (setq org-publish-project-alist
+        '(
+          ("kendix.org"
+           :base-directory "~/Code/websites/kendix.org/org/"
+           :publishing-directory "~/Code/websites/kendix.org/content/blog"
+           :recursive t
+           :publishing-function org-html-publish-to-html
+           :headline-levels 4 
+           :html-extension "html"
+           :body-only t
+           )
+          ("emacs-config"
+           :base-directory "~/.emacs.d/"
+           :publishing-directory "~/.emacs.d/doc/"
+           :recursive nil
+           :publishing-function org-html-publish-to-html
+           :headline-levels 3
+           :auto-preamble t
+           )
+          ))
+#+END_SRC
+** python-mode
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (whitespace-mode 1)
+              ;(jedi:setup)
+              )
+            )
+#+END_SRC
+** ttl-mode
+#+BEGIN_SRC emacs-lisp
+  ;; (autoload 'ttl-mode "ttl-mode" "Major mode for OWL or Turtle files" t)
+  ;; (add-hook 'ttl-mode-hook    ; Turn on font lock when in ttl mode
+  ;;           'turn-on-font-lock)
+  ;;   (add-to-list 'auto-mode-alist '("\\.ttl$" . ttl-mode))
+  (use-package ttl-mode
+    :mode ("\\.ttl$" . ttl-mode)
+    :init
+    (progn (add-hook 'ttl-mode-hook    ; Turn on font lock when in ttl mode
+            'turn-on-font-lock)))
+#+END_SRC
+** twittering-mode
+#+BEGIN_SRC emacs-lisp
+  (require 'twittering-mode)
+  
+  (setq 
+        twittering-icon-mode t
+        twittering-timer-interval 300
+        twittering-private-info-file (expand-file-name "~/.emacs.d/twittering-mode.gpg")
+        twittering-use-master-password t
+        twittering-initial-timeline-spec-string
+        '(":home"
+          ;;":search/emacs/"
+          )
+        twittering-status-format "%i %FACE[bold]{%S} %FACE[shadow]{@%s %RT{Retweeted by @%s} %@}\n%FOLD[  ]{%t}\n"
+        )
+#+END_SRC
+*** notifications
+#+BEGIN_SRC emacs-lisp
+  ;(twittering-enable-unread-status-notifier)
+  
+  ;; modify status notifier
+  (defun twittering-make-unread-status-notifier-string ()
+    "Generate a string that displays unread statuses."
+    (setq twittering-unread-status-info
+          (remove nil
+                  (mapcar (lambda (entry)
+                            (when (buffer-live-p (car entry))
+                              entry))
+                          twittering-unread-status-info)))
+    (let ((sum (apply '+ (mapcar 'cadr twittering-unread-status-info))))
+      (if (= 0 sum)
+          ""
+    ""    
+        ;;(propertize (format "%d new tweets" sum) 'face 'font-lock-comment-face))))
+    )))
+#+END_SRC
+#+BEGIN_SRC emacs-lisp    
+  (add-hook 'twittering-new-tweets-hook
+            (lambda ()
+              ;; mark workspace when new tweets come in
+              (x-urgency-hint (selected-frame) t)
+              
+              (let ((n twittering-new-tweets-count))
+                (if (> n 4)
+                    (notifications-notify
+                     :title "Twitter"
+                     :body  (format "You have %d new tweet%s" n (if (> n 1) "s" ""))
+                     :app-name "Gwibber"
+                     :app-icon "/usr/share/icons/Faenza/apps/96/twitter.png"
+                     :desktop-entry "Gwibber"
+                     )
+                  (dolist (el twittering-new-tweets-statuses)
+                    (notifications-notify
+                     :title "Twitter"
+                     :body  (concat (cdr (assoc 'user-screen-name el))
+                                    ": "
+                                    (cdr (assoc 'text el)) "\n")
+                     :app-name "Gwibber"
+                     :app-icon "/usr/share/icons/Faenza/apps/96/twitter.png"
+                     :desktop-entry "Gwibber"
+                     )
+                    )
+                  )
+                )))
+#+END_SRC
+** web-mode
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'web-mode-hook #'(lambda () (yas-activate-extra-mode 'html-mode)))
+#+END_SRC
+* Minor Modes
+** auto-dim-other-buffers
+#+BEGIN_SRC emacs-lisp
+  (require 'auto-dim-other-buffers)
+  
+  (auto-dim-other-buffers-mode 1)
+#+END_SRC
+** cua-mode
+#+BEGIN_SRC emacs-lisp
+  (cua-mode 1)
+#+END_SRC
+** delete-selection-mode
+This mode enables us to overwrite or delete marked regions by just hitting <DEL> or any other character.
+#+BEGIN_SRC emacs-lisp
+  (delete-selection-mode 1)
+#+END_SRC
+** flycheck
+#+BEGIN_SRC emacs-lisp
+  ;(require 'flycheck)
+  (global-flycheck-mode 1)
+#+END_SRC
+** git-gutter
+   Git-gutter is a way to display changes of a file since the last
+   commit in a tiny visual way besides the code. Because I don't like
+   any signs like a plus for added or something like this I removed
+   these signs (maybe in a hackish way) and only show the colored
+   background.
+#+BEGIN_SRC emacs-lisp
+  (require 'fringe-helper)
+  (require 'git-gutter-fringe)
+  
+  ;; added
+  (fringe-helper-define 'git-gutter-fr:added nil
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        ".........")
+  (set-face-background 'git-gutter-fr:added "#859900")
+  
+  ;; modified
+  (fringe-helper-define 'git-gutter-fr:modified nil
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        ".........")
+  (set-face-background 'git-gutter-fr:modified "#b58900")
+  
+  ;; removed
+  (fringe-helper-define 'git-gutter-fr:deleted nil
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        "........."
+                        ".........")
+  (set-face-background 'git-gutter-fr:deleted "#dc322f")
+  
+  (global-git-gutter-mode t)
+#+END_SRC
+** helm
+#+BEGIN_SRC emacs-lisp
+  (require 'helm-config)
+  (helm-mode 1)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+  (define-key helm-map (kbd "C-z")  'helm-select-action)
+#+END_SRC
+** isearch
+#+BEGIN_SRC emacs-lisp
+  (define-key isearch-mode-map (kbd "C-f") 'isearch-repeat-forward)
+#+END_SRC
+** ispell
+#+BEGIN_SRC emacs-lisp
+  (require 'ispell)
+  
+  (add-to-list 'ispell-local-dictionary-alist
+               '("de_DE"
+                 "[a-zA-Z\304\326\334\311\344\366\374\351\337]"
+                 "[^a-zA-Z\304\326\334\311\344\366\374\351\337]"
+                 "[']" t 
+                 ("-d" "de_DE") 
+                 nil iso-8859-1))
+  (setq
+   ispell-program-name "hunspell"
+   ispell-dictionary "de_DE"
+   ispell-personal-dictionary "~/.hunspell_de_DE"
+  ; ispell-extra-args '("-a" "-i" "utf-8")
+  )
+#+END_SRC
+** keyfreq
+#+BEGIN_SRC emacs-lisp
+  (require 'keyfreq)
+  (setq keyfreq-file "~/.emacs.d/doc/keyfreq")
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1)
+#+END_SRC
+This function is a hacky copy of the html export function of keyfreq.el to save the data as csv ... But it works.
+#+BEGIN_SRC emacs-lisp
+  (defun keyfreq-csv (filename)
+    "Saves an CSV file with all the global statistics."
+  
+    (interactive
+     (list (if buffer-file-name
+               (read-file-name "Write CSV file: "
+                               nil nil nil nil)
+             (read-file-name "Write CSV file: " default-directory
+                             (expand-file-name
+                              (file-name-nondirectory (buffer-name))
+                              default-directory)
+                             nil nil))
+           (not current-prefix-arg)))
+  
+    (let ((table (copy-hash-table keyfreq-table))
+          (htmltable (lambda (list)
+                       (keyfreq-format-list list
+                                            (lambda (count perc command)
+                                              (insert (format "%s,%d\n" command count))))
+                       )))
+  
+      ;; Merge with the values in .emacs.keyfreq file
+      (keyfreq-table-load table)
+  
+      (with-temp-file filename
+        (funcall htmltable (keyfreq-list (keyfreq-groups-major-modes table)))
+        )
+      ))
+#+END_SRC
+
+** linum-mode
+Enable the linum-mode globally.
+#+BEGIN_SRC emacs-lisp
+  ;(global-linum-mode 1)
+#+END_SRC
+But now disable the line numbers for specific modes where they disturb
+me. They are also disabled for all *-buffers.
+#+BEGIN_SRC emacs-lisp
+  (setq linum-disabled-modes-list
+        (quote (
+                eshell-mode
+                compilation-mode
+                org-mode
+                text-mode
+                dired-mode
+                twittering-mode
+                erc-mode
+                )
+               )
+        linum-disable-starred-buffers 't
+        )
+  
+  (defun linum-on ()
+    (unless (or (minibufferp) (member major-mode linum-disabled-modes-list)
+                (and linum-disable-starred-buffers (string-match "*" (buffer-name)))
+                )
+      (linum-mode 1)))
+  ;(linum-on)
+#+END_SRC
+
+** multi-web-mode
+#+BEGIN_SRC emacs-lisp
+  (require 'multi-web-mode)
+  
+  (setq
+        ;; handle html files with multi modes
+        mweb-default-major-mode 'web-mode ;;html-mode
+        mweb-tags '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
+                    (js2-mode "<script type=\"text/javascript\"[^>]*>" "</script>")
+                    ;;<script +\\(type=\"text/javascript\"\\|language=\"javascript\"\\)[^>]*>" "</script>")
+                    (css-mode "<style +type=\"text/css\"[^>]*>" "</style>"))
+        mweb-filename-extensions '("php" "htm" "html" "ctp" "phtml" "php4" "php5"))
+  (multi-web-global-mode 1)
+#+END_SRC
+** powerline
+#+BEGIN_SRC emacs-lisp
+  (defun powerline-my-theme ()
+    (interactive)
+    (defface powerline-readonly '((t (:background "#dc322f" :foreground "#300b0a" :inherit mode-line)))
+      "Powerline readonly face."
+      :group 'powerline)
+
+    (defface powerline-modified '((t (:background "#b58900" :foreground "#5e4700" :inherit mode-line)))
+      "Powerline modified face."
+      :group 'powerline)
+
+    (defface powerline-systray '((t (:background "#b58900" :foreground "#5e4700" :inherit mode-line)))
+      "Powerline modified face."
+      :group 'powerline)
+
+    (setq powerline-default-separator 'slant)
+
+    (setq-default mode-line-format
+                  '(
+                    (:eval
+                     (let* ((active (eq (frame-selected-window) (selected-window)))
+                            (face1 (if active 'powerline-active1 'powerline-inactive1))
+                            (face2 (if active 'powerline-active2 'powerline-inactive2))
+                            (face-main (if active
+                                           (cond (buffer-read-only 'powerline-readonly)
+                                                 ((buffer-modified-p) 'powerline-modified)
+                                                 (t 'mode-line))
+                                         'mode-line-inactive))
+                            (separator-left
+                             (intern (format "powerline-%s-%s"
+                                             powerline-default-separator 'right)))
+                            (separator-right
+                             (intern (format "powerline-%s-%s"
+                                             powerline-default-separator 'left)))
+                            (lhs (list
+
+                                  (powerline-raw " %b " face-main)
+                                  (funcall separator-right face-main face1)
+
+                                  (powerline-major-mode face1 'l)
+                                          ;(powerline-minor-modes face1 'l)
+                                  (powerline-raw mode-line-process face1 'l)
+                                  (powerline-narrow face1 'l)
+                                  (powerline-raw " " face1)
+                                  (funcall separator-right face1 face2)
+
+                                  (powerline-raw " " face2)
+                                  (powerline-raw (concat "proj:" (projectile-project-name)) face2)
+                                  (powerline-vc face2)
+                                  (powerline-raw " " face2)
+                                  (powerline-raw global-mode-string face2 'r)
+                                  ))
+                            (rhs (list
+
+                                  (funcall separator-left face2 face1)
+                                          ;(powerline-raw (concat " "(twittering-make-unread-status-notifier-string)) face1 'r)
+                                  (powerline-raw " L%l," face1 'r)
+                                  (powerline-raw "C%c" face1 'r)
+                                  )))
+                       (concat
+                        (powerline-render lhs)
+                        (powerline-fill face2 (powerline-width rhs))
+                        (powerline-render rhs)))))))
+
+  (powerline-my-theme)
+#+END_SRC
+** projectile
+#+BEGIN_SRC emacs-lisp
+  (projectile-global-mode 1)
+#+END_SRC
+** show-paren-mode
+#+BEGIN_SRC emacs-lisp
+  ;; load parenmode for highlighting matching parentheses
+  (show-paren-mode 1)
+  
+  (setq
+   ;; do not delay matching parenthesis
+   show-paren-delay 0
+  )
+#+END_SRC
+** uniquify
+#+BEGIN_SRC emacs-lisp
+  (require 'uniquify)
+  
+  (setq
+   ;; gleichnamige buffer um ordner ergänzen
+   uniquify-buffer-name-style 'forward
+   )
+#+END_SRC
+** whitespace-mode
+#+BEGIN_SRC emacs-lisp
+(setq
+ whitespace-line-column 81
+ whitespace-style '(face tabs trailing lines-tail)
+ show-trailing-whitespace t
+ )
+#+END_SRC
+
+** yasnippet
+#+BEGIN_SRC emacs-lisp
+  (require 'yasnippet)
+  
+  (yas-global-mode 1)
+#+END_SRC
