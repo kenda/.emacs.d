@@ -617,9 +617,9 @@ This function runs an ediff session on the marked files in dired.
         org-agenda-custom-commands
         '(("y"
            ((agenda "Overview")
-            (alltodo ""  ((org-agenda-files (remove "~/Dropbox/todo.work.org" org-agenda-files))
+            (alltodo ""  ((org-agenda-files (remove "~/Dropbox/org/todo.work.org" org-agenda-files))
                           (org-agenda-overriding-header "TODO list private:          ")))
-            (alltodo "" ((org-agenda-files '("~/Dropbox/todo.work.org"))
+            (alltodo "" ((org-agenda-files '("~/Dropbox/org/todo.work.org"))
                          (org-agenda-overriding-header "TODO list work:             ")))
             (todo "FDBCK" ((org-agenda-overriding-header "Tasks waiting for feedback: "))))
             ((org-agenda-remove-tags t)
