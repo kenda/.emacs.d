@@ -168,7 +168,6 @@ The following variables provide some general editing setting.
 #+BEGIN_SRC emacs-lisp
 (setq
  c-basic-offset 4
- coffee-tab-width 4
  tab-width 4
  kill-whole-line t
  fill-column 80
@@ -530,8 +529,7 @@ This function runs an ediff session on the marked files in dired.
                        js2-basic-offset 2
                        js2-enter-indents-newline t
                        js2-indent-on-enter-key t))
-               )
-  
+               )  
 #+END_SRC
 ** LaTeX
 #+BEGIN_SRC emacs-lisp
@@ -936,7 +934,18 @@ This function runs an ediff session on the marked files in dired.
 #+END_SRC
 ** web-mode
 #+BEGIN_SRC emacs-lisp
-  (add-hook 'web-mode-hook #'(lambda () (yas-activate-extra-mode 'html-mode)))
+  (use-package web-mode
+    :mode ("\\.html$" . web-mode)
+    :init
+    (add-hook 'web-mode-hook #'(lambda () (yas-activate-extra-mode 'html-mode)))
+    :config
+    (progn
+      (setq
+       web-mode-code-indent-offset 2
+       web-mode-css-indent-offset 2
+       web-mode-markup-indent-offset 4)
+      )
+    )
 #+END_SRC
 * Minor Modes
 ** auto-dim-other-buffers
@@ -1107,20 +1116,6 @@ me. They are also disabled for all *-buffers.
   ;(linum-on)
 #+END_SRC
 
-** multi-web-mode
-#+BEGIN_SRC emacs-lisp
-  (require 'multi-web-mode)
-  
-  (setq
-        ;; handle html files with multi modes
-        mweb-default-major-mode 'web-mode ;;html-mode
-        mweb-tags '((php-mode "<\\?php\\|<\\? \\|<\\?=" "\\?>")
-                    (js2-mode "<script type=\"text/javascript\"[^>]*>" "</script>")
-                    ;;<script +\\(type=\"text/javascript\"\\|language=\"javascript\"\\)[^>]*>" "</script>")
-                    (css-mode "<style +type=\"text/css\"[^>]*>" "</style>"))
-        mweb-filename-extensions '("php" "htm" "html" "ctp" "phtml" "php4" "php5"))
-  (multi-web-global-mode 1)
-#+END_SRC
 ** powerline
 #+BEGIN_SRC emacs-lisp
   (defun powerline-my-theme ()
