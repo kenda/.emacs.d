@@ -166,13 +166,14 @@ And in general its fun to see how I'm using Emacs :)
 
 The following variables provide some general editing setting.
 #+BEGIN_SRC emacs-lisp
-(setq
- c-basic-offset 4
- tab-width 4
- kill-whole-line t
- fill-column 80
- indent-tabs-mode nil
-)
+  (setq-default
+   tab-width 4
+   fill-column 80
+   indent-tabs-mode nil
+   )
+  (setq
+   kill-whole-line t
+   )
 #+END_SRC
    Shorten the question of "yes or no" to simply "y" or "n"
 #+BEGIN_SRC emacs-lisp
