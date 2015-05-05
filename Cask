@@ -1,5 +1,5 @@
-(source "melpa" "http://melpa.milkbox.net/packages/")
 (source gnu)
+(source melpa)
 
 (depends-on "aggressive-indent")
 (depends-on "auto-complete")
@@ -14,6 +14,7 @@
 (depends-on "deferred")
 (depends-on "diminish")
 (depends-on "dired+")
+(depends-on "editorconfig")
 (depends-on "epc")
 (depends-on "epl")
 (depends-on "f")
