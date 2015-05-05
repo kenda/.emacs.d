@@ -247,6 +247,7 @@ The default font is the mono variation of the [[http://font.ubuntu.com/][Ubuntu 
               (aggressive-indent-mode 1)
               (linum-mode 1)
               (rainbow-delimiters-mode 1)
+              (whitespace-mode 1)
               )
             )
 #+END_SRC
@@ -851,7 +852,7 @@ This function runs an ediff session on the marked files in dired.
 #+BEGIN_SRC emacs-lisp
   (add-hook 'python-mode-hook
             (lambda ()
-              (whitespace-mode 1)
+              ;(whitespace-mode 1)
               ;(jedi:setup)
               )
             )
@@ -1209,11 +1210,11 @@ me. They are also disabled for all *-buffers.
 #+END_SRC
 ** whitespace-mode
 #+BEGIN_SRC emacs-lisp
-(setq
- whitespace-line-column 81
- whitespace-style '(face tabs trailing lines-tail)
- show-trailing-whitespace t
- )
+  (setq
+   whitespace-line-column 81
+   whitespace-style '(face space-mark tab-mark trailing lines-tail)
+   show-trailing-whitespace t
+   )
 #+END_SRC
 
 ** yasnippet
