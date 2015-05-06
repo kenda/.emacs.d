@@ -1147,6 +1147,10 @@ me. They are also disabled for all *-buffers.
                                                  ((buffer-modified-p) 'powerline-modified)
                                                  (t 'mode-line))
                                          'mode-line-inactive))
+                            (face-flycheck (cond
+                                            ((flycheck-has-current-errors-p 'error) 'powerline-readonly)
+                                            ((flycheck-has-current-errors-p 'warning) 'powerline-modified)
+                                            (t 'mode-line)))
                             (separator-left
                              (intern (format "powerline-%s-%s"
                                              powerline-default-separator 'right)))
@@ -1172,8 +1176,9 @@ me. They are also disabled for all *-buffers.
                                   (powerline-raw global-mode-string face2 'r)
                                   ))
                             (rhs (list
-
-                                  (funcall separator-left face2 face1)
+                                  (funcall separator-left face2 face-flycheck)
+                                  (powerline-raw (concat (flycheck-mode-line-status-text) " ") face-flycheck)
+                                  (funcall separator-left face-flycheck face1)
                                           ;(powerline-raw (concat " "(twittering-make-unread-status-notifier-string)) face1 'r)
                                   (powerline-raw " L%l," face1 'r)
                                   (powerline-raw "C%c" face1 'r)
