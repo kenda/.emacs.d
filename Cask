@@ -4,6 +4,7 @@
 (depends-on "aggressive-indent")
 (depends-on "auto-complete")
 (depends-on "auto-dim-other-buffers")
+(depends-on "avy")
 (depends-on "bind-key")
 (depends-on "cask")
 (depends-on "color-theme")
