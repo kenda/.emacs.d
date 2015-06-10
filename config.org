@@ -588,11 +588,6 @@ This function runs an ediff session on the marked files in dired.
     (start-process "myname" nil "thunderbird" "-thunderlink" (concat "thunderlink:" path)))
   
 #+END_SRC
-#+BEGIN_SRC emacs-lisp
-  (setq
-   org-toodledo-folder-support-mode 'heading
-   org-toodledo-sync-on-save "yes")
-#+END_SRC
 *** Agenda
 #+BEGIN_SRC emacs-lisp
   (setq org-agenda-cmp-user-defined 'org-compare-todo-state)
