@@ -51,7 +51,6 @@
 (depends-on "s")
 (depends-on "shut-up")
 (depends-on "solarized-theme")
-(depends-on "twittering-mode")
 (depends-on "use-package")
 (depends-on "virtualenvwrapper")
 (depends-on "web-mode")
