@@ -955,12 +955,18 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
 #+END_SRC
 ** helm
 #+BEGIN_SRC emacs-lisp
-  (require 'helm-config)
-  (helm-mode 1)
-#+END_SRC
-#+BEGIN_SRC emacs-lisp
-  (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-  (define-key helm-map (kbd "C-z")  'helm-select-action)
+  (use-package helm-mode
+    :init
+    (progn
+      (require 'helm-config)
+      (helm-mode 1))
+    :config
+    (progn
+      (define-key helm-map (kbd "M-j") 'helm-next-line)
+      (define-key helm-map (kbd "M-k") 'helm-previous-line)
+      (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+      (define-key helm-map (kbd "C-z")  'helm-select-action)
+      ))
 #+END_SRC
 ** isearch
 #+BEGIN_SRC emacs-lisp
