@@ -389,67 +389,6 @@ This function runs an ediff session on the marked files in dired.
 			     )
 	  )
 #+END_SRC
-** ibuffer
-#+BEGIN_SRC emacs-lisp
-(setq
- ;; group the buffers
- ibuffer-saved-filter-groups
- (quote (("default"
-          ("Dired" (mode . dired-mode))
-          ("Org"
-           (or
-            (mode . org-mode)
-            (name . "^\\*Org Agenda\\*$")
-            ))
-          ("Mail"
-           (or
-            (mode . message-mode)
-            (mode . mail-mode)
-            (name . "^\\*Group\\*$")
-            (name . "^\\*Article\\*$")
-            (name . "^\\*Summary\\*$")
-            ))
-          ("Messaging"
-           (or
-            (mode . erc-mode)
-            (mode . twittering-mode)
-            ))
-          ("Terminals"
-           (or
-            (mode . term-mode)
-            ))
-          ("Programming"
-           (or
-            (mode . js2-mode)
-            (mode . python-mode)
-            (mode . emacs-lisp-mode)
-            ))
-          ("Writing"
-           (or
-            (mode . latex-mode)
-            (name . "*.Rnw$")
-            )))))
-
- ;; format the buffer display
- ibuffer-formats
- '((mark modified read-only " "
-         (name 28 28 :left :elide)
-         " "
-         (mode 20 20 :left :elide)
-         " "
-         filename-and-process))
-
- ;; + for modiefied buffers
- ibuffer-modified-char 43
-
- ;; ! for read-only buffers
- ibuffer-read-only-char 33
- )
-
-(add-hook 'ibuffer-mode-hook
-  (lambda ()
-    (ibuffer-switch-to-saved-filter-groups "default")))
-#+END_SRC
 ** js2-mode
 #+BEGIN_SRC emacs-lisp
   (use-package js2-mode
