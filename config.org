@@ -26,8 +26,6 @@ This documentation is build by Emacs' [[http://orgmode.org/][orgmode]]. The =ini
 (require 'pallet)
 (pallet-mode t)
 
-(setq custom-file "~/.emacs.d/custom.el")
-
 (when (file-exists-p "~/.emacs.d/local.conf.el")
   (load "~/.emacs.d/local.conf.el"))
 
@@ -47,47 +45,23 @@ Other intresting configurations build with Orgmode:
 ** general variables
 #+BEGIN_SRC emacs-lisp
   (setq
-   ;; store autosaved files in system's tmp dir
-   auto-save-list-file-prefix "/tmp/emacs/auto-save-list/.saves-"
-   
-   ;; default browser
-   browse-url-browser-function 'browse-url-generic
-   browse-url-generic-program (substring
-                               (shell-command-to-string "xdg-settings get default-web-browser")
-                               0 -9)
-  
-   ;; show column in toolbar
-   column-number-mode  t
-  
    custom-file "~/.emacs.d/custom.el"
-   
-   ;; fortune file
-   fortune-file "~/.emacs.d/fortunes/emacs"   
-   ;; frame title
-   frame-title-format "%b - Emacs"
-  
-   ;; refresh files automatically on disk change
-   global-auto-revert-mode t
-  
-   ;; start with a new buffer instead of start screen
-   inhibit-startup-screen t
 
+   ;; fortune file
+   fortune-file "~/.emacs.d/fortunes/emacs"
+
+   ;; set orgmode as default mode for the scratch buffer
    initial-major-mode 'org-mode
 
+   ;; and remove the initial scratch message
    initial-scratch-message nil
 
    make-backup-files nil
-    
+
    ;; sentences end with one space instead of two
    sentence-end-double-space nil
-   
-   ;; no gtk file dialogs
-   use-file-dialog nil
    )
 #+END_SRC
-
-#+RESULTS:
-
 The following variables provide some general editing setting.
 #+BEGIN_SRC emacs-lisp
   (setq-default
@@ -104,6 +78,15 @@ The following variables provide some general editing setting.
   (fset 'yes-or-no-p 'y-or-n-p)
 #+END_SRC
 ** GUI
+#+BEGIN_SRC emacs-lisp
+  (setq
+   ;; frame title
+   frame-title-format "%b - Emacs"
+
+   ;; start with a new buffer instead of start screen
+   inhibit-startup-screen t
+   )
+#+END_SRC
 Disable the toolbar and the scrollbars:
 #+BEGIN_SRC emacs-lisp
   (tool-bar-mode -1)
@@ -134,41 +117,37 @@ The default font is the mono variation of the [[http://font.ubuntu.com/][Ubuntu 
     )
 #+END_SRC
 ** Hooks
+Customize the behaviour during the startup of Emacs. 
+Finally call the =local-startup-hook= which can define platform specific things.
 #+BEGIN_SRC emacs-lisp
    (add-hook 'emacs-startup-hook
              (lambda ()
                (load custom-file)
-  
+
                ;; Orgmode "startpage"
                (org-agenda nil "y")
                (org-agenda-clockreport-mode)
                (delete-other-windows)
-               
+
                (split-window-horizontally)
                ;(fortune)
-               
+
                ;; load theme
                (load-theme 'solarized-light)
-   
-               ;; show startup time
-               (message (format "startup time: %s" (emacs-init-time)))
 
                (local-startup-hook)
+
+               ;; show startup time
+               (message (format "startup time: %s" (emacs-init-time)))
                ) t
              )
 #+END_SRC
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'kill-emacs-hook
-            (lambda ()
-              ;(publish-emacs-config)
-              ) t
-            )
-#+END_SRC
+Prog-mode-hook is a convenient way to start minor modes that are only needed in programming modes.
 #+BEGIN_SRC emacs-lisp
   (add-hook 'prog-mode-hook
             (lambda ()
-              (company-mode 1)
               (aggressive-indent-mode 1)
+              (company-mode 1)
               (linum-mode 1)
               (rainbow-delimiters-mode 1)
               (whitespace-mode 1)
@@ -186,17 +165,21 @@ First we define a custom keymap:
 #+END_SRC
 And now we add arbitrary key bindings to this map.
 #+BEGIN_SRC emacs-lisp
-  (define-key global-minor-mode-map (kbd "<f9>") (lambda () (interactive) (find-file "~/.emacs.d/bookmarks.org")))
   (define-key global-minor-mode-map (kbd "<f10>") (lambda () (interactive) (org-capture nil "t")))
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
-  (define-key global-minor-mode-map (kbd "C-x C-b") 'ibuffer)
   (define-key global-minor-mode-map (kbd "C-c a")   'org-agenda)
   (define-key global-minor-mode-map (kbd "C-x e")   'eshell)
   (define-key global-minor-mode-map (kbd "C-x m")   'magit-status)
-  (define-key global-minor-mode-map (kbd "M-x")   'helm-M-x)
-  (define-key global-minor-mode-map (kbd "M-y")   'helm-show-kill-ring)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (define-key global-minor-mode-map (kbd "M-x")     'helm-M-x)
+  (define-key global-minor-mode-map (kbd "M-y")     'helm-show-kill-ring)
   (define-key global-minor-mode-map (kbd "C-x b")   'helm-mini)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (define-key global-minor-mode-map (kbd "M-g w") 'avy-goto-word-1)
+  (define-key global-minor-mode-map (kbd "M-g l") 'avy-goto-line)
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (define-key global-minor-mode-map (kbd "C-s")   'save-buffer)
@@ -233,10 +216,6 @@ And now we add arbitrary key bindings to this map.
   (define-key global-minor-mode-map (kbd "C--") 'text-scale-decrease)
   (define-key global-minor-mode-map (kbd "<C-mouse-5>") 'text-scale-decrease)
 #+END_SRC
-#+BEGIN_SRC emacs-lisp
-  (define-key global-minor-mode-map (kbd "M-g w") 'avy-goto-word-1)
-  (define-key global-minor-mode-map (kbd "M-g l") 'avy-goto-line)
-#+END_SRC
 
 And finally the minor mode is build and loaded:
 #+BEGIN_SRC emacs-lisp
@@ -249,19 +228,6 @@ And finally the minor mode is build and loaded:
   (define-key global-map (kbd "RET") 'newline-and-indent)
 #+END_SRC
 * Global functions  
-This function sets the window manager urgency hint. What this causes
-is up to your window manager.
-#+BEGIN_SRC emacs-lisp
-  (defun x-urgency-hint (frame arg &optional source)
-    (let* ((wm-hints (append (x-window-property 
-                           "WM_HINTS" frame "WM_HINTS" source nil t) nil))
-        (flags (car wm-hints)))
-      (setcar wm-hints
-           (if arg
-               (logior flags #x00000100)
-             (logand flags #x1ffffeff)))
-      (x-change-window-property "WM_HINTS" wm-hints frame "WM_HINTS" 32 t)))
-#+END_SRC
 This function looks for typical keywords like TODO or FIXME in the current buffer and shows them in an occur buffer.
 #+BEGIN_SRC emacs-lisp
   (defun show-todos ()
@@ -290,14 +256,6 @@ The following functions define simple commands for moving a line up or down.
         (next-line)
         (transpose-lines -1))
       (move-to-column col)))
-#+END_SRC
-This function generates the keyfrequencies and exports/publishes my Emacs config.
-#+BEGIN_SRC emacs-lisp
-  (defun publish-emacs-config ()
-    (interactive)
-    (keyfreq-csv "~/.emacs.d/doc/keyfreq.csv")
-    (org-publish-project "emacs-config")
-    )
 #+END_SRC
 * Major Modes
 ** calendar
@@ -330,16 +288,6 @@ This function generates the keyfrequencies and exports/publishes my Emacs config
    ;ls-lisp-verbosity nil
    )
 #+END_SRC
-Define some compress commands for common archive types that are not
-handled by dired by default.
-#+BEGIN_SRC emacs-lisp
-  (eval-after-load "dired-aux"
-    '(add-to-list 'dired-compress-file-suffixes 
-                  '("\\.zip\\'" ".zip" "unzip")
-                  '("\\.rar\\'" ".rar" "unrar x")
-                  ))
-  
-#+END_SRC
 *** functions
 This function runs an ediff session on the marked files in dired.
 #+BEGIN_SRC emacs-lisp
@@ -361,33 +309,6 @@ This function runs an ediff session on the marked files in dired.
    (list (dired-get-marked-files t current-prefix-arg)))
   (apply 'call-process "xdg-open" nil 0 nil file-list))
 ;(define-key dired-mode-map (kbd "o") 'dired-xdg-open)
-#+END_SRC
-#+BEGIN_SRC emacs-lisp
-(defun dired-mouse-find-file (event)
-  "In Dired, visit the file or directory name you click on."
-  (interactive "e")
-  (let (window pos file)
-    (save-excursion
-      (setq window (posn-window (event-end event))
-            pos (posn-point (event-end event)))
-      (if (not (windowp window))
-          (error "No file chosen"))
-      (set-buffer (window-buffer window))
-      (goto-char pos)
-      (setq file (dired-get-file-for-visit)))
-    (if (file-directory-p file)
-        (or (and (cdr dired-subdir-alist)
-                 (dired-goto-subdir file))
-            (progn
-              (select-window window)
-              (dired file)))
-      (select-window window)
-      (find-file (file-name-sans-versions file t)))))
-
-(add-hook 'dired-mode-hook (lambda ()
-			     (local-set-key [mouse-1] 'dired-mouse-find-file)
-			     )
-	  )
 #+END_SRC
 ** js2-mode
 #+BEGIN_SRC emacs-lisp
@@ -540,7 +461,6 @@ This function runs an ediff session on the marked files in dired.
 #+BEGIN_SRC emacs-lisp
   (setq
    org-src-fontify-natively t
-  
    org-export-creator-info nil
    org-export-time-stamp-file nil
    org-export-with-section-numbers nil
@@ -620,66 +540,6 @@ This function runs an ediff session on the marked files in dired.
   
    org-export-latex-date-format "%d. %B %Y"
    org-beamer-frame-level 2
-  
-   ;;  org-export-html-style "
-   ;; <script src=\"http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js\"></script>
-   ;; <script type=\"text/javascript\">
-   ;; $().ready(function(){
-   ;;   if ( $(\"#table-of-contents\").length !== 0 ){
-   ;;     $(\"#content\").before(\"<div id='table-of-content'>\" + $(\"#table-of-contents\").html() + \"</div>\");
-   ;;     $(\"#table-of-contents\").hide();
-   ;;     $(\"#content\").css(\"float\", \"right\");
-   ;;   }
-   ;; });
-   ;; </script>
-   ;; <link href='http://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
-   ;; <link href='http://fonts.googleapis.com/css?family=Salsa' rel='stylesheet' type='text/css'>
-   ;; <style type=\"text/css\">
-   ;;   body{
-   ;;     background-color:#EBE99D;
-   ;;     margin: 0px;
-   ;;     padding: 0px;
-   ;;     font-family: 'Salsa';
-   ;;   }
-   ;;   h2{
-   ;;     font-family: 'Pacifico';
-   ;;     font-size: 2em;
-   ;;     margin: 0px auto 0px auto;
-   ;;   }
-   ;;   h3{
-   ;;     font-family: 'Pacifico';
-   ;;     font-size: 1.4em;
-   ;;     margin: 0px auto 0px auto;
-   ;;   }
-   ;;   ul{
-   ;;     list-style-type: none;
-   ;;   }
-   ;;   ul > li:before{
-   ;;     content: \"\\2013\\A0\";
-   ;;   }
-   ;;   p{
-   ;;     margin: 0px auto 0px auto;
-   ;;   }
-   ;;   .title{
-   ;;     color:#eee;
-   ;;     background-color:#451F08;
-   ;;     text-align:center;
-   ;;     height: 50px;
-   ;;     margin: 0px;
-   ;;     padding: 5px 5px 0 0;
-   ;;     -webkit-box-shadow:0px 2px 5px gray;
-   ;;     -moz-box-shadow:0px 2px 5px gray;
-   ;;     box-shadow:0px 2px 5px gray;
-   ;;   }
-   ;;   #content > div, #content > p{
-   ;;     margin-left: 75px;
-   ;;     border-left: 3px double brown;
-   ;;     padding: 10px;
-   ;;   }
-   ;;   #table-of-content{
-   ;;     float: left;
-   ;;   }
-   ;; </style>"
    org-export-html-title-format "<h1 class=\"title\">%s</h1>"
    org-export-html-table-tag "<table class=\"table table-condensed table-striped table-bordered\" border=\"2\" cellspacing=\"0\" cellpadding=\"6\" rules=\"groups\" frame=\"hsides\">"
    org-export-html-use-infojs (quote when-configured)
@@ -711,21 +571,8 @@ This function runs an ediff session on the marked files in dired.
            )
           ))
 #+END_SRC
-** python-mode
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'python-mode-hook
-            (lambda ()
-              ;(whitespace-mode 1)
-              ;(jedi:setup)
-              )
-            )
-#+END_SRC
 ** ttl-mode
 #+BEGIN_SRC emacs-lisp
-  ;; (autoload 'ttl-mode "ttl-mode" "Major mode for OWL or Turtle files" t)
-  ;; (add-hook 'ttl-mode-hook    ; Turn on font lock when in ttl mode
-  ;;           'turn-on-font-lock)
-  ;;   (add-to-list 'auto-mode-alist '("\\.ttl$" . ttl-mode))
   (use-package ttl-mode
     :mode ("\\.ttl$" . ttl-mode)
     :init
@@ -890,36 +737,6 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
         (funcall htmltable (keyfreq-list (keyfreq-groups-major-modes table)))
         )
       ))
-#+END_SRC
-
-** linum-mode
-Enable the linum-mode globally.
-#+BEGIN_SRC emacs-lisp
-  ;(global-linum-mode 1)
-#+END_SRC
-But now disable the line numbers for specific modes where they disturb
-me. They are also disabled for all *-buffers.
-#+BEGIN_SRC emacs-lisp
-  (setq linum-disabled-modes-list
-        (quote (
-                eshell-mode
-                compilation-mode
-                org-mode
-                text-mode
-                dired-mode
-                twittering-mode
-                erc-mode
-                )
-               )
-        linum-disable-starred-buffers 't
-        )
-  
-  (defun linum-on ()
-    (unless (or (minibufferp) (member major-mode linum-disabled-modes-list)
-                (and linum-disable-starred-buffers (string-match "*" (buffer-name)))
-                )
-      (linum-mode 1)))
-  ;(linum-on)
 #+END_SRC
 
 ** powerline
