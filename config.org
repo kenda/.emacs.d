@@ -11,113 +11,37 @@
 #+HTML_HEAD_EXTRA:    <link rel="stylesheet" type="text/css" href="worg.css" />
 #+HTML_HEAD_EXTRA:    <link rel="stylesheet" type="text/css" href="style.css" />
 * Introduction
-Current version of Emacs is:
-#+BEGIN_SRC emacs-lisp :results value :exports results
-(emacs-version)
-#+END_SRC
-
-
-#+RESULTS:
-: GNU Emacs 24.2.1 (x86_64-unknown-linux-gnu, GTK+ Version 3.6.2)
-:  of 2012-11-18 on eric
-
-** About this config
 This documentation is build by Emacs' [[http://orgmode.org/][orgmode]]. The =init.el= looks like this:
 #+BEGIN_SRC emacs-lisp :results value :exports results
  (with-temp-buffer    (insert-file-contents "~/.emacs.d/init.el")    (buffer-string))
 #+END_SRC
 
+#+RESULTS:
+#+begin_example
+(require 'cl)
+(require 'org)
+
+(require 'cask); "~/.cask/cask.el")
+(cask-initialize)
+(require 'pallet)
+(pallet-mode t)
+
+(setq custom-file "~/.emacs.d/custom.el")
+
+(when (file-exists-p "~/.emacs.d/local.conf.el")
+  (load "~/.emacs.d/local.conf.el"))
+
+(require 'use-package)
+(org-babel-load-file "~/.emacs.d/config.org")
+#+end_example
+
 That's all. The rest is done in the =config.org= and that's this document.
 ** Installation
-   TODO
+This configuration uses [[https://github.com/cask/cask][Cask]] to manage the required packages. 
+So after cloning the repository you need to run =cask install= which will fetch all dependencies.
 ** Other configs
 Other intresting configurations build with Orgmode:
-  - [[http://dl.dropbox.com/u/3968124/sacha-emacs.html][Sacha Chua]]
-  - [[http://eschulte.me/emacs24-starter-kit/][Emacs Starter Kit]]
-
-** Key frequencies						   :noexport:
-   TODO
-#+BEGIN_SRC python :exports results :results output
-  from pandas.io.parsers import read_csv
-  from pylab import *
-  
-  # number of commands that should be analyzed
-  num = 40
-  
-  # define some equivalent commands which do quite the same as
-  # their 'parent' commands
-  equivalents = {
-      "self-insert-command":
-          ["org-self-insert-command", "isearch-printing-char"],
-      "next-line":
-          ["dired-next-line", "org-agenda-next-line"],
-      "previous-line":
-          ["dired-previous-line", "org-agenda-previous-line"],
-      "delete-backward-char":
-          ["org-delete-backward-char"]
-      }
-  
-  ignored = [
-      "mwheel-scroll",
-      "mouse-drag-region",
-      "twittering-click",
-      "mouse-set-point"
-      ]
-  
-  # load keyfreq data
-  data = read_csv("~/.emacs.d/doc/keyfreq.csv", header=None, index_col=0,
-                  encoding='utf-8')
-  
-  # add the values of the equivalent commands to their parent commands
-  for key in equivalents:
-      sum = 0
-      for equi in equivalents[key]:
-          sum += data.xs(equi)[1]
-  
-          data = data.drop(equi)
-  
-      data.ix[key] = data.ix[key] + sum
-  
-  # delete the ignored commands
-  for command in ignored:
-      data = data.drop(command)
-  
-  # resort the dataframe
-  data = data.sort([1], ascending=False)
-  data = data[num::-1]
-  
-  data.plot(kind='barh', legend=False, color="#268bd2")
-  
-  # add text objects to each bar that shows the frequency count
-  for i in range(0, num+1):
-      text(data.ix[i][1], i+0.4, " " + str(data.ix[i][1]))
-  
-  figure = gcf() # get current figure
-  figure.set_size_inches(19, 11)
-  savefig('doc/keyfreq.png')
-  
-#+END_SRC
-
-#+RESULTS:
-
-The following plot shows the most frequent used functions of me. This
-helps me to analyse which functions should have the best keybindings.
-And in general its fun to see how I'm using Emacs :)
-
-#+BEGIN_HTML
-  <script type="text/javascript">
-    $(document).ready(function() {
-      $(".fancybox").fancybox({
-        hideOnContentClick:true
-      });
-    });
-  </script>
-  <div class="figure">
-    <a class="fancybox" href="keyfreq.png">
-      <img src="keyfreq.png" width="100%" alt="key frenquencies" />
-    </a>
-  </div>
-#+END_HTML
+  - [[http://pages.sachachua.com/.emacs.d/Sacha.html][Sacha Chua]]
 * General
   This section contains the configuration for some general parts of Emacs that are not mode-specific.
 ** general variables
