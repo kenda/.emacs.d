@@ -746,17 +746,17 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
     (defface powerline-readonly '((t (:background "#dc322f" :foreground "#300b0a" :inherit mode-line)))
       "Powerline readonly face."
       :group 'powerline)
-
+  
     (defface powerline-modified '((t (:background "#b58900" :foreground "#5e4700" :inherit mode-line)))
       "Powerline modified face."
       :group 'powerline)
-
+  
     (defface powerline-systray '((t (:background "#b58900" :foreground "#5e4700" :inherit mode-line)))
       "Powerline modified face."
       :group 'powerline)
-
-    (setq powerline-default-separator 'slant)
-
+  
+    (setq powerline-default-separator 'box)
+  
     (setq-default mode-line-format
                   '(
                     (:eval
@@ -779,36 +779,31 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
                              (intern (format "powerline-%s-%s"
                                              powerline-default-separator 'left)))
                             (lhs (list
-
                                   (powerline-raw " %b " face-main)
                                   (funcall separator-right face-main face1)
-
+  
                                   (powerline-major-mode face1 'l)
                                           ;(powerline-minor-modes face1 'l)
                                   (powerline-raw mode-line-process face1 'l)
-                                  (powerline-narrow face1 'l)
+                                          ;(powerline-narrow face1 'l)
                                   (powerline-raw " " face1)
                                   (funcall separator-right face1 face2)
-
-                                  (powerline-raw " " face2)
-                                  (powerline-raw (concat "proj:" (projectile-project-name)) face2)
-                                  (powerline-vc face2)
-                                  (powerline-raw " " face2)
-                                  (powerline-raw global-mode-string face2 'r)
                                   ))
                             (rhs (list
-                                  (funcall separator-left face2 face-flycheck)
-                                  (powerline-raw (concat (flycheck-mode-line-status-text) " ") face-flycheck)
-                                  (funcall separator-left face-flycheck face1)
-                                          ;(powerline-raw (concat " "(twittering-make-unread-status-notifier-string)) face1 'r)
+                                  (powerline-raw (concat [#xf07c] " " (projectile-project-name)) face2)
+                                  (when (not (equal (powerline-vc) nil))
+                                    (powerline-raw (concat " " [#xf0e8] (powerline-vc)) face2))
+                                  (powerline-raw (concat " " [#xf040] (flycheck-mode-line-status-text) " ") face2)
+                                  (powerline-raw global-mode-string face2 'r)
+                                  (funcall separator-left face2 face1)
                                   (powerline-raw " L%l," face1 'r)
-                                  (powerline-raw "C%c" face1 'r)
+                                  (powerline-raw "C%c " face1 'r)
                                   )))
                        (concat
                         (powerline-render lhs)
                         (powerline-fill face2 (powerline-width rhs))
                         (powerline-render rhs)))))))
-
+  
   (powerline-my-theme)
 #+END_SRC
 ** projectile
