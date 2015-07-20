@@ -171,6 +171,7 @@ And now we add arbitrary key bindings to this map.
   (define-key global-minor-mode-map (kbd "C-c a")   'org-agenda)
   (define-key global-minor-mode-map (kbd "C-x e")   'eshell)
   (define-key global-minor-mode-map (kbd "C-x m")   'magit-status)
+  (define-key global-minor-mode-map (kbd "C-c C-p")   'hydra-projectile/body)
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (define-key global-minor-mode-map (kbd "M-x")     'helm-M-x)
@@ -677,6 +678,18 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
       (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
       (define-key helm-map (kbd "C-z")  'helm-select-action)
       ))
+#+END_SRC
+** hydra
+#+BEGIN_SRC emacs-lisp
+  (defhydra hydra-projectile
+    (:color blue
+            :columns 3)
+    "Project commands"
+    ("f" helm-projectile-find-file "Find file")
+    ("g" projectile-grep "grep")
+    ("o" helm-projectile-switch-project "Open project")
+    ("p" helm-projectile "Project buffers & files")
+    ("q" nil "cancel"))
 #+END_SRC
 ** isearch
 #+BEGIN_SRC emacs-lisp
