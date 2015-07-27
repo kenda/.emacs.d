@@ -1,7 +1,7 @@
 (require 'cl)
 (require 'org)
 
-(require 'cask "~/.cask/cask.el")
+(require 'cask)
 (cask-initialize)
 (require 'pallet)
 (pallet-mode t)
