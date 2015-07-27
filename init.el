@@ -6,8 +6,6 @@
 (require 'pallet)
 (pallet-mode t)
 
-(setq custom-file "~/.emacs.d/custom.el")
-
 (when (file-exists-p "~/.emacs.d/local.conf.el")
   (load "~/.emacs.d/local.conf.el"))
 
