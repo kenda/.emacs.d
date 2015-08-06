@@ -103,18 +103,6 @@ The default font is the mono variation of the [[http://font.ubuntu.com/][Ubuntu 
 *** Faces
 #+BEGIN_SRC emacs-lisp  
   (set-face-attribute 'font-lock-warning-face nil :foreground "#C15757" :underline nil :weight 'bold)
-  
-  (eval-after-load "flyspell"
-    '(progn
-       (set-face-attribute 'flyspell-incorrect nil :foreground "red" :underline t :weight 'normal :slant 'italic)
-       )
-    )
-  
-  (eval-after-load "whitespace"
-    '(progn
-       (set-face-attribute 'whitespace-line nil :foreground "red1" :slant 'italic)
-       )
-    )
 #+END_SRC
 ** Hooks
 Customize the behaviour during the startup of Emacs. 
@@ -598,9 +586,37 @@ This function runs an ediff session on the marked files in dired.
 * Minor Modes
 ** auto-dim-other-buffers
 #+BEGIN_SRC emacs-lisp
-  (require 'auto-dim-other-buffers)
-  
-  (auto-dim-other-buffers-mode 1)
+  (use-package auto-dim-other-buffers
+    :config
+    (progn
+      (set-face-attribute 'auto-dim-other-buffers-face nil
+                          :background "#eee8d5")
+      )
+    :init
+    (progn
+      (auto-dim-other-buffers-mode 1)
+      ))
+#+END_SRC
+** company-mode
+Add yasnippet support for all company backends:
+#+BEGIN_SRC emacs-lisp
+  (use-package company-mode
+ ;   :init
+    ;;    (progn
+;    (push '(company-dabbrev-code :with company-yasnippet) company-backends)
+    ;;   (defvar company-mode/enable-yas t
+    ;;     "Enable yasnippet for all backends.")
+    
+    ;;   (defun company-mode/backend-with-yas (backend)
+    ;;     (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
+    ;;         backend
+    ;;       (append (if (consp backend) backend (list backend))
+    ;;               '(:with company-yasnippet))))
+    
+    ;;                                       ;(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+    ;;   )
+    ;;    )
+    )
 #+END_SRC
 ** cua-mode
 #+BEGIN_SRC emacs-lisp
@@ -628,41 +644,42 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
   
   ;; added
   (fringe-helper-define 'git-gutter-fr:added nil
-                        "........."
-                        "........."
-                        "........."
-                        "........."
-                        "........."
-                        "........."
-                        "........."
-                        ".........")
+    "........."
+    "........."
+    "........."
+    "........."
+    "........."
+    "........."
+    "........."
+    ".........")
   (set-face-background 'git-gutter-fr:added "#859900")
   
   ;; modified
   (fringe-helper-define 'git-gutter-fr:modified nil
-                        "........."
-                        "........."
-                        "........."
-                        "........."
-                        "........."
-                        "........."
-                        "........."
-                        ".........")
+    "........."
+    "........."
+    "........."
+    "........."
+    "........."
+    "........."
+    "........."
+    ".........")
   (set-face-background 'git-gutter-fr:modified "#b58900")
   
   ;; removed
   (fringe-helper-define 'git-gutter-fr:deleted nil
-                        "........."
-                        "........."
-                        "........."
-                        "........."
-                        "........."
-                        "........."
-                        "........."
-                        ".........")
+    "........."
+    "........."
+    "........."
+    "........."
+    "........."
+    "........."
+    "........."
+    ".........")
   (set-face-background 'git-gutter-fr:deleted "#dc322f")
   
   (global-git-gutter-mode t)
+  
 #+END_SRC
 ** helm
 #+BEGIN_SRC emacs-lisp
@@ -756,6 +773,10 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
       ))
 #+END_SRC
 
+** linum
+#+BEGIN_SRC emacs-lisp
+  (eval-after-load 'linum-mode '(set-face-background 'linum "#EEE8D5"))
+#+END_SRC
 ** powerline
 #+BEGIN_SRC emacs-lisp
   (defun powerline-my-theme ()
@@ -763,17 +784,17 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
     (defface powerline-readonly '((t (:background "#dc322f" :foreground "#300b0a" :inherit mode-line)))
       "Powerline readonly face."
       :group 'powerline)
-  
+
     (defface powerline-modified '((t (:background "#b58900" :foreground "#5e4700" :inherit mode-line)))
       "Powerline modified face."
       :group 'powerline)
-  
-    (defface powerline-systray '((t (:background "#b58900" :foreground "#5e4700" :inherit mode-line)))
-      "Powerline modified face."
+
+    (defface powerline-saved '((t (:background "#859900" :foreground "#394200" :inherit mode-line)))
+      "Powerline saved file face."
       :group 'powerline)
-  
-    (setq powerline-default-separator 'box)
-  
+
+    (setq powerline-default-separator 'slant)
+
     (setq-default mode-line-format
                   '(
                     (:eval
@@ -783,12 +804,12 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
                             (face-main (if active
                                            (cond (buffer-read-only 'powerline-readonly)
                                                  ((buffer-modified-p) 'powerline-modified)
-                                                 (t 'mode-line))
+                                                 (t 'powerline-saved))
                                          'mode-line-inactive))
                             (face-flycheck (cond
                                             ((flycheck-has-current-errors-p 'error) 'powerline-readonly)
                                             ((flycheck-has-current-errors-p 'warning) 'powerline-modified)
-                                            (t 'mode-line)))
+                                            (t 'powerline-saved)))
                             (separator-left
                              (intern (format "powerline-%s-%s"
                                              powerline-default-separator 'right)))
@@ -850,13 +871,22 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
 #+END_SRC
 ** whitespace-mode
 #+BEGIN_SRC emacs-lisp
-  (setq
-   whitespace-line-column 81
-   whitespace-style '(face space-mark tab-mark trailing lines-tail)
-   show-trailing-whitespace t
-   )
+  (use-package whitespace-mode
+    :init
+    (progn
+      (setq
+       whitespace-line-column 81
+       whitespace-style '(face space-mark tab-mark trailing lines-tail)
+       show-trailing-whitespace t)
+      )
+    :config
+    (progn
+      (set-face-attribute 'whitespace-line nil
+                          :foreground "red1"
+                          :slant 'italic)
+      )
+    )
 #+END_SRC
-
 ** yasnippet
 #+BEGIN_SRC emacs-lisp
   (require 'yasnippet)
