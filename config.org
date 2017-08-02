@@ -571,6 +571,7 @@ This function runs an ediff session on the marked files in dired.
 ** web-mode
 #+BEGIN_SRC emacs-lisp
   (use-package web-mode
+    :ensure t
     :mode ("\\.html$" . web-mode)
     :init
     (add-hook 'web-mode-hook #'(lambda () (yas-activate-extra-mode 'html-mode)))
@@ -587,10 +588,12 @@ This function runs an ediff session on the marked files in dired.
 ** auto-dim-other-buffers
 #+BEGIN_SRC emacs-lisp
   (use-package auto-dim-other-buffers
+    :ensure t
     :config
     (progn
       (set-face-attribute 'auto-dim-other-buffers-face nil
-                          :background "#eee8d5")
+                          ;;:background "#eee8d5")
+                          :background "#073642")
       )
     :init
     (progn
@@ -849,6 +852,7 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
 ** projectile
 #+BEGIN_SRC emacs-lisp
   (projectile-global-mode 1)
+  (add-to-list 'projectile-globally-ignored-directories "node_modules")
 #+END_SRC
 ** show-paren-mode
 #+BEGIN_SRC emacs-lisp
@@ -875,7 +879,7 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
     :init
     (progn
       (setq
-       whitespace-line-column 81
+       whitespace-line-column 121
        whitespace-style '(face space-mark tab-mark trailing lines-tail)
        show-trailing-whitespace t)
       )
