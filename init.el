@@ -24,6 +24,7 @@
                       yasnippet
                       rainbow-delimiters
                       aggressive-indent
+                      powerline
                       magit))
 
 ; list the repositories containing them

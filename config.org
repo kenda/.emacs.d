@@ -630,6 +630,13 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
 #+BEGIN_SRC emacs-lisp
   (delete-selection-mode 1)
 #+END_SRC
+** editorconfig
+#+BEGIN_SRC emacs-lisp
+  (use-package editorconfig
+    :ensure t
+    :config
+    (editorconfig-mode 1))
+#+END_SRC
 ** flycheck
 #+BEGIN_SRC emacs-lisp
   ;(require 'flycheck)
