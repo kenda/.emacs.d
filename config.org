@@ -35,8 +35,7 @@ This documentation is build by Emacs' [[http://orgmode.org/][orgmode]]. The =ini
 
 That's all. The rest is done in the =config.org= and that's this document.
 ** Installation
-This configuration uses [[https://github.com/cask/cask][Cask]] to manage the required packages. 
-So after cloning the repository you need to run =cask install= which will fetch all dependencies.
+This configuration uses [[https://github.com/jwiegley/use-package][use-package]] to install most of the required packages at the startup.
 ** Other configs
 Other intresting configurations build with Orgmode:
   - [[http://pages.sachachua.com/.emacs.d/Sacha.html][Sacha Chua]]
@@ -578,6 +577,11 @@ This function runs an ediff session on the marked files in dired.
     )
 #+END_SRC
 * Minor Modes
+** aggressive-indent
+#+BEGIN_SRC emacs-lisp
+  (use-package aggressive-indent
+    :ensure t)
+#+END_SRC
 ** auto-dim-other-buffers
 #+BEGIN_SRC emacs-lisp
   (use-package auto-dim-other-buffers
@@ -602,22 +606,23 @@ This function runs an ediff session on the marked files in dired.
 Add yasnippet support for all company backends:
 #+BEGIN_SRC emacs-lisp
   (use-package company-mode
- ;   :init
-    ;;    (progn
-;    (push '(company-dabbrev-code :with company-yasnippet) company-backends)
-    ;;   (defvar company-mode/enable-yas t
-    ;;     "Enable yasnippet for all backends.")
-    
-    ;;   (defun company-mode/backend-with-yas (backend)
-    ;;     (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-    ;;         backend
-    ;;       (append (if (consp backend) backend (list backend))
-    ;;               '(:with company-yasnippet))))
-    
-    ;;                                       ;(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
-    ;;   )
-    ;;    )
-    )
+    :ensure t
+   ;   :init
+      ;;    (progn
+  ;    (push '(company-dabbrev-code :with company-yasnippet) company-backends)
+      ;;   (defvar company-mode/enable-yas t
+      ;;     "Enable yasnippet for all backends.")
+      
+      ;;   (defun company-mode/backend-with-yas (backend)
+      ;;     (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
+      ;;         backend
+      ;;       (append (if (consp backend) backend (list backend))
+      ;;               '(:with company-yasnippet))))
+      
+      ;;                                       ;(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
+      ;;   )
+      ;;    )
+      )
 #+END_SRC
 ** cua-mode
 #+BEGIN_SRC emacs-lisp
@@ -647,8 +652,13 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
 #+END_SRC
 ** flycheck
 #+BEGIN_SRC emacs-lisp
-  ;(require 'flycheck)
-  (global-flycheck-mode 1)
+  (use-package flycheck
+    :ensure t
+    :config
+    (progn
+      (global-flycheck-mode 1)
+      )
+    )
 #+END_SRC
 ** git-gutter
    Git-gutter is a way to display changes of a file since the last
@@ -659,7 +669,7 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
 #+BEGIN_SRC emacs-lisp
   (require 'fringe-helper)
   (require 'git-gutter-fringe)
-  
+
   ;; added
   (fringe-helper-define 'git-gutter-fr:added nil
     "........."
@@ -671,7 +681,7 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
     "........."
     ".........")
   (set-face-background 'git-gutter-fr:added "#859900")
-  
+
   ;; modified
   (fringe-helper-define 'git-gutter-fr:modified nil
     "........."
@@ -683,7 +693,7 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
     "........."
     ".........")
   (set-face-background 'git-gutter-fr:modified "#b58900")
-  
+
   ;; removed
   (fringe-helper-define 'git-gutter-fr:deleted nil
     "........."
@@ -695,11 +705,15 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
     "........."
     ".........")
   (set-face-background 'git-gutter-fr:deleted "#dc322f")
-  
+
   (global-git-gutter-mode t)
-  
+
 #+END_SRC
 ** hydra
+#+BEGIN_SRC emacs-lisp
+  (use-package hydra
+    :ensure t)
+#+END_SRC
 #+BEGIN_SRC emacs-lisp
   (defhydra hydra-projectile
     (:color blue
@@ -761,10 +775,15 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
 #+END_SRC
 ** keyfreq
 #+BEGIN_SRC emacs-lisp
-  (require 'keyfreq)
-  (setq keyfreq-file "~/.emacs.d/doc/keyfreq")
-  (keyfreq-mode 0)
-  (keyfreq-autosave-mode 0)
+  (use-package keyfreq
+    :ensure t
+    :config
+    (progn
+      (setq keyfreq-file "~/.emacs.d/doc/keyfreq")
+      (keyfreq-mode 0)
+      (keyfreq-autosave-mode 0)
+      )
+    )
 #+END_SRC
 This function is a hacky copy of the html export function of keyfreq.el to save the data as csv ... But it works.
 #+BEGIN_SRC emacs-lisp
@@ -844,7 +863,7 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
                             (lhs (list
                                   (powerline-raw " %b " face-main)
                                   (funcall separator-right face-main face1)
-  
+
                                   (powerline-major-mode face1 'l)
                                           ;(powerline-minor-modes face1 'l)
                                   (powerline-raw mode-line-process face1 'l)
@@ -868,13 +887,26 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
                         (powerline-render lhs)
                         (powerline-fill face2 (powerline-width rhs))
                         (powerline-render rhs)))))))
-  
-  (powerline-my-theme)
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (use-package powerline
+    :ensure t
+    :config
+    (progn
+      (powerline-my-theme)
+      )
+    )
 #+END_SRC
 ** projectile
 #+BEGIN_SRC emacs-lisp
-  (projectile-global-mode 1)
-  (add-to-list 'projectile-globally-ignored-directories "node_modules")
+  (use-package projectile
+    :ensure t
+    :config
+    (progn
+      (projectile-global-mode 1)
+      (add-to-list 'projectile-globally-ignored-directories "node_modules")
+      )
+    )
 #+END_SRC
 ** show-paren-mode
 #+BEGIN_SRC emacs-lisp

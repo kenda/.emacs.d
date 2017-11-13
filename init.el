@@ -13,18 +13,10 @@
 (setq package-list '( use-package
                       org
                       solarized-theme
-                      helm
-                      company
-                      flycheck
                       fringe-helper
                       git-gutter-fringe
-                      hydra
-                      keyfreq
-                      projectile
                       yasnippet
                       rainbow-delimiters
-                      aggressive-indent
-                      powerline
                       magit))
 
 ; list the repositories containing them
