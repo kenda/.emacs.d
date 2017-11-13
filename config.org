@@ -159,20 +159,11 @@ And now we add arbitrary key bindings to this map.
   (define-key global-minor-mode-map (kbd "C-c a")   'org-agenda)
   (define-key global-minor-mode-map (kbd "C-x e")   'eshell)
   (define-key global-minor-mode-map (kbd "C-x m")   'magit-status)
-  (define-key global-minor-mode-map (kbd "C-c C-p")   'hydra-projectile/body)
-#+END_SRC
-#+BEGIN_SRC emacs-lisp
-  (define-key global-minor-mode-map (kbd "M-x")     'helm-M-x)
-  (define-key global-minor-mode-map (kbd "M-y")     'helm-show-kill-ring)
-  (define-key global-minor-mode-map (kbd "C-x b")   'helm-mini)
-#+END_SRC
-#+BEGIN_SRC emacs-lisp
-  (define-key global-minor-mode-map (kbd "M-g w") 'avy-goto-word-1)
-  (define-key global-minor-mode-map (kbd "M-g l") 'avy-goto-line)
+  (define-key global-minor-mode-map (kbd "M-p")     'hydra-projectile/body)
+  (define-key global-minor-mode-map (kbd "M-g")     'hydra-jump/body)
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (define-key global-minor-mode-map (kbd "C-s")   'save-buffer)
-  (define-key global-minor-mode-map (kbd "C-f")   'isearch-forward)
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (define-key global-minor-mode-map (kbd "M-<down>") 'move-line-down)
@@ -600,6 +591,11 @@ This function runs an ediff session on the marked files in dired.
       (auto-dim-other-buffers-mode 1)
       ))
 #+END_SRC
+** avy
+#+BEGIN_SRC emacs-lisp
+  (use-package avy
+    :ensure t)
+#+END_SRC
 ** company-mode
 Add yasnippet support for all company backends:
 #+BEGIN_SRC emacs-lisp
@@ -629,6 +625,16 @@ Add yasnippet support for all company backends:
 This mode enables us to overwrite or delete marked regions by just hitting <DEL> or any other character.
 #+BEGIN_SRC emacs-lisp
   (delete-selection-mode 1)
+#+END_SRC
+** dumb-jump
+#+BEGIN_SRC emacs-lisp
+  (use-package dumb-jump
+    :ensure t
+    :config
+    (progn
+      (setq dumb-jump-selector 'ivy)
+      )
+    )
 #+END_SRC
 ** editorconfig
 #+BEGIN_SRC emacs-lisp
@@ -691,35 +697,27 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
   (global-git-gutter-mode t)
   
 #+END_SRC
-** helm
-#+BEGIN_SRC emacs-lisp
-  (use-package helm-mode
-    :init
-    (progn
-      (require 'helm-config)
-      (helm-mode 1))
-    :config
-    (progn
-      (define-key helm-map (kbd "M-j") 'helm-next-line)
-      (define-key helm-map (kbd "M-k") 'helm-previous-line)
-      (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
-      (define-key helm-map (kbd "C-z")  'helm-select-action)
-
-      (setq
-       helm-buffer-max-length 40
-       helm-git-grep-candidate-number-limit 50)
-      ))
-#+END_SRC
 ** hydra
 #+BEGIN_SRC emacs-lisp
   (defhydra hydra-projectile
     (:color blue
             :columns 3)
     "Project commands"
-    ("f" helm-projectile-find-file "Find file")
-    ("g" projectile-grep "grep")
-    ("o" helm-projectile-switch-project "Open project")
-    ("p" helm-projectile "Project buffers & files")
+    ("f" counsel-git "Find file")
+    ("g" counsel-git-grep "grep")
+    ("o" projectile-switch-project "Open project")
+    ("q" nil "cancel"))
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (defhydra hydra-jump
+    (:color blue
+            :columns 3)
+    "Jump commands"
+    ("d" dumb-jump-go "Go to definition")
+    ("g" goto-line "Go to line number")
+    ("l" avy-goto-line "Go to line")
+    ("w" avy-goto-word-1 "Go to word")
+    ("c" avy-goto-char-1 "Go to char")
     ("q" nil "cancel"))
 #+END_SRC
 ** isearch
@@ -744,12 +742,27 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
   ; ispell-extra-args '("-a" "-i" "utf-8")
   )
 #+END_SRC
+** ivy
+#+BEGIN_SRC emacs-lisp
+  (use-package counsel
+    :ensure t
+    :init
+    (progn
+      (ivy-mode 1))
+    :config
+    (progn
+      (define-key global-minor-mode-map (kbd "C-f") 'swiper)
+      (define-key global-minor-mode-map (kbd "C-x b") 'ivy-switch-buffer)
+      (define-key global-minor-mode-map (kbd "M-x") 'counsel-M-x)
+      (define-key global-minor-mode-map (kbd "C-x C-f") 'counsel-find-file)
+      ))
+#+END_SRC
 ** keyfreq
 #+BEGIN_SRC emacs-lisp
   (require 'keyfreq)
   (setq keyfreq-file "~/.emacs.d/doc/keyfreq")
-  (keyfreq-mode 1)
-  (keyfreq-autosave-mode 1)
+  (keyfreq-mode 0)
+  (keyfreq-autosave-mode 0)
 #+END_SRC
 This function is a hacky copy of the html export function of keyfreq.el to save the data as csv ... But it works.
 #+BEGIN_SRC emacs-lisp
