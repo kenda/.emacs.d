@@ -13,11 +13,7 @@
 (setq package-list '( use-package
                       org
                       solarized-theme
-                      fringe-helper
-                      git-gutter-fringe
-                      yasnippet
-                      rainbow-delimiters
-                      magit))
+                      ))
 
 ; list the repositories containing them
 (setq package-archives '(("melpa" . "http://melpa.milkbox.net/packages/")

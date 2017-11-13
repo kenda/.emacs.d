@@ -157,9 +157,6 @@ And now we add arbitrary key bindings to this map.
 #+BEGIN_SRC emacs-lisp
   (define-key global-minor-mode-map (kbd "C-c a")   'org-agenda)
   (define-key global-minor-mode-map (kbd "C-x e")   'eshell)
-  (define-key global-minor-mode-map (kbd "C-x m")   'magit-status)
-  (define-key global-minor-mode-map (kbd "M-p")     'hydra-projectile/body)
-  (define-key global-minor-mode-map (kbd "M-g")     'hydra-jump/body)
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (define-key global-minor-mode-map (kbd "C-s")   'save-buffer)
@@ -335,6 +332,16 @@ This function runs an ediff session on the marked files in dired.
               (define-key LaTeX-mode-map (kbd "M-z") 'outline-toggle-children)
               )
             )
+#+END_SRC
+** magit
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :ensure t
+    :config
+    (progn
+      (define-key global-minor-mode-map (kbd "C-x m")   'magit-status)
+      )
+    )
 #+END_SRC
 ** orgmode
 #+BEGIN_SRC emacs-lisp
@@ -667,52 +674,68 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
    these signs (maybe in a hackish way) and only show the colored
    background.
 #+BEGIN_SRC emacs-lisp
-  (require 'fringe-helper)
-  (require 'git-gutter-fringe)
+  (use-package fringe-helper
+    :ensure t
+    :init
+    (progn
 
-  ;; added
-  (fringe-helper-define 'git-gutter-fr:added nil
-    "........."
-    "........."
-    "........."
-    "........."
-    "........."
-    "........."
-    "........."
-    ".........")
-  (set-face-background 'git-gutter-fr:added "#859900")
+      ;; added
+      (fringe-helper-define 'git-gutter-fr:added nil
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        ".........")
+      (set-face-background 'git-gutter-fr:added "#859900")
 
-  ;; modified
-  (fringe-helper-define 'git-gutter-fr:modified nil
-    "........."
-    "........."
-    "........."
-    "........."
-    "........."
-    "........."
-    "........."
-    ".........")
-  (set-face-background 'git-gutter-fr:modified "#b58900")
+      ;; modified
+      (fringe-helper-define 'git-gutter-fr:modified nil
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        ".........")
+      (set-face-background 'git-gutter-fr:modified "#b58900")
 
-  ;; removed
-  (fringe-helper-define 'git-gutter-fr:deleted nil
-    "........."
-    "........."
-    "........."
-    "........."
-    "........."
-    "........."
-    "........."
-    ".........")
-  (set-face-background 'git-gutter-fr:deleted "#dc322f")
-
-  (global-git-gutter-mode t)
-
+      ;; removed
+      (fringe-helper-define 'git-gutter-fr:deleted nil
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        ".........")
+      (set-face-background 'git-gutter-fr:deleted "#dc322f")
+      )
+    )
+#+END_SRC
+#+BEGIN_SRC emacs-lisp
+  (use-package git-gutter-fringe
+    :ensure t
+    :config
+    (progn
+      (global-git-gutter-mode t)
+      )
+    )
 #+END_SRC
 ** hydra
 #+BEGIN_SRC emacs-lisp
   (use-package hydra
-    :ensure t)
+    :ensure t
+    :config
+    (progn
+      (define-key global-minor-mode-map (kbd "M-p")     'hydra-projectile/body)
+      (define-key global-minor-mode-map (kbd "M-g")     'hydra-jump/body)
+      )
+    )
 #+END_SRC
 #+BEGIN_SRC emacs-lisp
   (defhydra hydra-projectile
@@ -908,6 +931,12 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
       )
     )
 #+END_SRC
+** rainbow-delimiters
+#+BEGIN_SRC emacs-lisp
+  (use-package rainbow-delimiters
+    :ensure t
+    )
+#+END_SRC
 ** show-paren-mode
 #+BEGIN_SRC emacs-lisp
   ;; load parenmode for highlighting matching parentheses
@@ -947,7 +976,11 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
 #+END_SRC
 ** yasnippet
 #+BEGIN_SRC emacs-lisp
-  (require 'yasnippet)
-  
-  (yas-global-mode 1)
+  (use-package yasnippet
+    :ensure t
+    :config
+    (progn
+      (yas-global-mode 1)
+      )
+    )
 #+END_SRC
