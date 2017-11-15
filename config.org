@@ -595,12 +595,6 @@ This function runs an ediff session on the marked files in dired.
     :ensure t
     :config
     (progn
-      (set-face-attribute 'auto-dim-other-buffers-face nil
-                          ;;:background "#eee8d5")
-                          :background "#073642")
-      )
-    :init
-    (progn
       (auto-dim-other-buffers-mode 1)
       ))
 #+END_SRC
