@@ -751,6 +751,7 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
     ("l" avy-goto-line "Go to line")
     ("w" avy-goto-word-1 "Go to word")
     ("c" avy-goto-char-1 "Go to char")
+    ("s" imenu "Go to symbol")
     ("q" nil "cancel"))
 #+END_SRC
 ** isearch
