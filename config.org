@@ -738,6 +738,8 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
     "Project commands"
     ("f" counsel-git "Find file")
     ("g" counsel-git-grep "grep")
+    ("r" counsel-rg "ripgrep")
+    ("a" counsel-ag "ag")
     ("o" projectile-switch-project "Open project")
     ("q" nil "cancel"))
 #+END_SRC
@@ -750,7 +752,7 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
     ("g" goto-line "Go to line number")
     ("l" avy-goto-line "Go to line")
     ("w" avy-goto-word-1 "Go to word")
-    ("c" avy-goto-char-1 "Go to char")
+    ("c" avy-goto-char "Go to char")
     ("s" imenu "Go to symbol")
     ("q" nil "cancel"))
 #+END_SRC
