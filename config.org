@@ -773,13 +773,16 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
     :ensure t
     :init
     (progn
-      (ivy-mode 1))
+      (ivy-mode 1)
+      (counsel-mode 1)
+      )
     :config
     (progn
       (define-key global-minor-mode-map (kbd "C-f") 'swiper)
       (define-key global-minor-mode-map (kbd "C-x b") 'ivy-switch-buffer)
       (define-key global-minor-mode-map (kbd "M-x") 'counsel-M-x)
       (define-key global-minor-mode-map (kbd "C-x C-f") 'counsel-find-file)
+      (define-key global-minor-mode-map (kbd "M-y") 'counsel-yank-pop)
       ))
 #+END_SRC
 ** keyfreq
