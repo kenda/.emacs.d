@@ -926,6 +926,9 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
     (progn
       (projectile-global-mode 1)
       (add-to-list 'projectile-globally-ignored-directories "node_modules")
+      (setq
+       projectile-completion-system 'ivy
+       )
       )
     )
 #+END_SRC
