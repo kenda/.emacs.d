@@ -1,0 +1,13 @@
+auto-save-list/
+config.el
+elpa/
+eshell/
+image-dired/
+local.conf.el
+recentf
+session.*
+tramp
+twittering-mode.gpg
+projectile-bookmarks.eld
+url/
+custom.el
