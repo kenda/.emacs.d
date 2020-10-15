@@ -982,6 +982,9 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
     :ensure t
     :config
     (progn
+      (setq yas-snippet-dirs
+            '("~/.emacs.d/snippets"                 ;; personal snippets
+              ))
       (yas-global-mode 1)
       )
     )
