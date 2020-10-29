@@ -16,7 +16,7 @@
                       ))
 
 ; list the repositories containing them
-(setq package-archives '(("melpa" . "http://melpa.milkbox.net/packages/")
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
                          ("org" . "http://orgmode.org/elpa/")))
 
 ; install the missing packages
