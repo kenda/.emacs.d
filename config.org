@@ -551,6 +551,11 @@ This function runs an ediff session on the marked files in dired.
     (progn (add-hook 'ttl-mode-hook    ; Turn on font lock when in ttl mode
             'turn-on-font-lock)))
 #+END_SRC
+** typescript-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package typescript-mode
+               :mode ("\\.ts[x]$" . typescript-mode))
+#+END_SRC
 ** web-mode
 #+BEGIN_SRC emacs-lisp
   (use-package web-mode
