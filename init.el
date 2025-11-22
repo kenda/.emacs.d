@@ -16,8 +16,8 @@
                       ))
 
 ; list the repositories containing them
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("org" . "http://orgmode.org/elpa/")))
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa" . "https://melpa.org/packages/")))
 
 ; install the missing packages
 (dolist (package package-list)

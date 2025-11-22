@@ -561,8 +561,6 @@ This function runs an ediff session on the marked files in dired.
   (use-package web-mode
     :ensure t
     :mode ("\\.\\(html\\|jsx\\|tsx\\)$" . web-mode)
-    :init
-    (add-hook 'web-mode-hook #'(lambda () (yas-activate-extra-mode 'html-mode)))
     :config
     (progn
       (setq
@@ -576,6 +574,21 @@ This function runs an ediff session on the marked files in dired.
     )
 #+END_SRC
 * Minor Modes
+** abbrev-mode
+#+BEGIN_SRC emacs-lisp
+  (use-package abbrev
+    :ensure nil
+    :custom
+    (save-abbrevs nil)
+    :config
+    (define-abbrev-table 'global-abbrev-table
+      '(
+        ("log" "console.log(@);" (lambda () (search-backward "@") (delete-char 1)))
+        ("import" "import { @ } from '';" (lambda () (search-backward "@") (delete-char 1)))
+        )
+      )
+    )
+#+END_SRC
 ** aggressive-indent
 #+BEGIN_SRC emacs-lisp
   (use-package aggressive-indent
@@ -596,26 +609,12 @@ This function runs an ediff session on the marked files in dired.
     :ensure t)
 #+END_SRC
 ** company-mode
-Add yasnippet support for all company backends:
 #+BEGIN_SRC emacs-lisp
   (use-package company-mode
     :ensure t
     :hook prog-mode
-   ;   :init
-      ;;    (progn
-  ;    (push '(company-dabbrev-code :with company-yasnippet) company-backends)
-      ;;   (defvar company-mode/enable-yas t
-      ;;     "Enable yasnippet for all backends.")
-      
-      ;;   (defun company-mode/backend-with-yas (backend)
-      ;;     (if (or (not company-mode/enable-yas) (and (listp backend) (member 'company-yasnippet backend)))
-      ;;         backend
-      ;;       (append (if (consp backend) backend (list backend))
-      ;;               '(:with company-yasnippet))))
-      
-      ;;                                       ;(setq company-backends (mapcar #'company-mode/backend-with-yas company-backends))
-      ;;   )
-      ;;    )
+      :init
+      (setq company-backends '((company-capf company-abbrev company-dabbrev-code)))
       )
 #+END_SRC
 ** cua-mode
@@ -978,19 +977,6 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
       (set-face-attribute 'whitespace-line nil
                           :foreground "red1"
                           :slant 'italic)
-      )
-    )
-#+END_SRC
-** yasnippet
-#+BEGIN_SRC emacs-lisp
-  (use-package yasnippet
-    :ensure t
-    :config
-    (progn
-      (setq yas-snippet-dirs
-            '("~/.emacs.d/snippets"                 ;; personal snippets
-              ))
-      (yas-global-mode 1)
       )
     )
 #+END_SRC
