@@ -617,6 +617,17 @@ This function runs an ediff session on the marked files in dired.
       (setq company-backends '((company-capf company-abbrev company-dabbrev-code)))
       )
 #+END_SRC
+** consult
+#+BEGIN_SRC emacs-lisp
+  (use-package consult
+    :ensure t
+    :config
+    (progn
+      (define-key global-minor-mode-map (kbd "C-f") 'consult-line)
+      (define-key global-minor-mode-map (kbd "C-x b") 'consult-buffer)
+      (define-key global-minor-mode-map (kbd "M-y") 'consult-yank-replace)
+      ))
+#+END_SRC
 ** cua-mode
 #+BEGIN_SRC emacs-lisp
   (cua-mode 1)
@@ -770,24 +781,6 @@ This mode enables us to overwrite or delete marked regions by just hitting <DEL>
   ; ispell-extra-args '("-a" "-i" "utf-8")
   )
 #+END_SRC
-** ivy
-#+BEGIN_SRC emacs-lisp
-  (use-package counsel
-    :ensure t
-    :init
-    (progn
-      (ivy-mode 1)
-      (counsel-mode 1)
-      )
-    :config
-    (progn
-      (define-key global-minor-mode-map (kbd "C-f") 'swiper)
-      (define-key global-minor-mode-map (kbd "C-x b") 'ivy-switch-buffer)
-      (define-key global-minor-mode-map (kbd "M-x") 'counsel-M-x)
-      (define-key global-minor-mode-map (kbd "C-x C-f") 'counsel-find-file)
-      (define-key global-minor-mode-map (kbd "M-y") 'counsel-yank-pop)
-      ))
-#+END_SRC
 ** keyfreq
 #+BEGIN_SRC emacs-lisp
   (use-package keyfreq
@@ -843,6 +836,14 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
       (progn
         (set-face-background 'linum "#EEE8D5"))
       )
+    )
+#+END_SRC
+** orderless
+#+BEGIN_SRC emacs-lisp
+  (use-package orderless
+    :ensure t
+    :custom
+    (completion-styles '(orderless basic))
     )
 #+END_SRC
 ** powerline
@@ -929,9 +930,6 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
     (progn
       (projectile-global-mode 1)
       (add-to-list 'projectile-globally-ignored-directories "node_modules")
-      (setq
-       projectile-completion-system 'ivy
-       )
       )
     )
 #+END_SRC
@@ -979,4 +977,12 @@ This function is a hacky copy of the html export function of keyfreq.el to save 
                           :slant 'italic)
       )
     )
+#+END_SRC
+
+** vertico
+#+BEGIN_SRC emacs-lisp
+  (use-package vertico
+    :ensure t
+    :init
+    (vertico-mode))
 #+END_SRC
